@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Dashboard - RefReady</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="dashboard-logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+                <span class="dashboard-subtitle">Club Dashboard</span>
+            </div>
+            <div class="dashboard-user">
+                <div class="user-info">
+                    <div class="user-name" id="club-name">Loading...</div>
+                    <div class="user-role" id="club-role">Club Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <nav class="dashboard-sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="overview.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="referees.html" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            <span>Referees</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mentors.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            <span>Mentors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="safety.html" class="nav-link">
+                            <span class="nav-icon">🆘</span>
+                            <span>Safety Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports.html" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Demo Banner -->
+                <div id="demo-banner" class="demo-banner" style="display: none;">
+                    <div class="banner-content">
+                        <span class="banner-icon">🎯</span>
+                        <div class="banner-text">
+                            <strong>Demo Mode</strong>
+                            <span>You're viewing sample data. Start your free trial to manage real referees.</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Start Free Trial</button>
+                    </div>
+                </div>
+
+                <!-- Page Title -->
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <p class="page-subtitle">Monitor your club's referee development and activity</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-referees">15</div>
+                            <div class="metric-label">Active Referees</div>
+                            <div class="metric-change positive">+2 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🤝</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-mentors">8</div>
+                            <div class="metric-label">Active Mentors</div>
+                            <div class="metric-change positive">+1 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🏐</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="weekly-games">24</div>
+                            <div class="metric-label">Games This Week</div>
+                            <div class="metric-change neutral">Same as last week</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="avg-confidence">7.8</div>
+                            <div class="metric-label">Avg Confidence</div>
+                            <div class="metric-change positive">+0.3 this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">Quick Actions</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="showInviteReferee()">
+                            <div class="action-icon">📧</div>
+                            <div class="action-content">
+                                <h3>Invite Referee</h3>
+                                <p>Add a new referee to your club</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showInviteMentor()">
+                            <div class="action-icon">🤝</div>
+                            <div class="action-content">
+                                <h3>Invite Mentor</h3>
+                                <p>Add a new mentor to support referees</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showAssignMentor()">
+                            <div class="action-icon">🎯</div>
+                            <div class="action-content">
+                                <h3>Assign Mentor</h3>
+                                <p>Match mentors with referees</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="generateReport()">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h3>Generate Report</h3>
+                                <p>Download club progress reports</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">👤</div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Emma Richardson</strong> logged a new game
+                                </div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">💬</div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Sarah Mitchell</strong> provided feedback to Alex Thompson
+                                </div>
+                                <div class="activity-time">4 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">🎖️</div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>James Wilson</strong> earned the "Confident Calls" badge
+                                </div>
+                                <div class="activity-time">6 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">📧</div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>New mentor</strong> invitation sent to Lisa Davis
+                                </div>
+                                <div class="activity-time">1 day ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performers -->
+                <div class="top-performers">
+                    <h2 class="section-title">Top Performers This Month</h2>
+                    <div class="performers-grid">
+                        <div class="performer-card">
+                            <div class="performer-avatar">👧</div>
+                            <div class="performer-info">
+                                <h3>Emma Richardson</h3>
+                                <p>Rising Star</p>
+                                <div class="performer-stats">
+                                    <span>12 games</span>
+                                    <span>8.2 avg confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="performer-card">
+                            <div class="performer-avatar">👦</div>
+                            <div class="performer-info">
+                                <h3>Alex Thompson</h3>
+                                <p>Developing</p>
+                                <div class="performer-stats">
+                                    <span>9 games</span>
+                                    <span>7.5 avg confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="performer-card">
+                            <div class="performer-avatar">👦</div>
+                            <div class="performer-info">
+                                <h3>James Wilson</h3>
+                                <p>Newcomer</p>
+                                <div class="performer-stats">
+                                    <span>6 games</span>
+                                    <span>6.8 avg confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Status -->
+                <div class="safety-status">
+                    <h2 class="section-title">Safety Status</h2>
+                    <div class="safety-card">
+                        <div class="safety-icon">✅</div>
+                        <div class="safety-content">
+                            <h3>All Clear</h3>
+                            <p>No active safety incidents reported</p>
+                            <div class="safety-stats">
+                                <span>2 incidents resolved this month</span>
+                                <span>0 pending follow-ups</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Invite Referee Modal -->
+    <div id="invite-referee-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('invite-referee-modal')">&times;</span>
+            <h2>Invite New Referee</h2>
+            <form id="invite-referee-form">
+                <div class="form-group">
+                    <label for="referee-name">Referee Name</label>
+                    <input type="text" id="referee-name" required placeholder="Enter referee's full name">
+                </div>
+                <div class="form-group">
+                    <label for="referee-email">Email Address</label>
+                    <input type="email" id="referee-email" required placeholder="referee@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="referee-phone">Phone Number (Optional)</label>
+                    <input type="tel" id="referee-phone" placeholder="0412 345 678">
+                </div>
+                <div class="form-group">
+                    <label for="referee-level">Experience Level</label>
+                    <select id="referee-level" required>
+                        <option value="">Select level...</option>
+                        <option value="newcomer">Newcomer</option>
+                        <option value="developing">Developing</option>
+                        <option value="experienced">Experienced</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('invite-referee-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invite Mentor Modal -->
+    <div id="invite-mentor-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('invite-mentor-modal')">&times;</span>
+            <h2>Invite New Mentor</h2>
+            <form id="invite-mentor-form">
+                <div class="form-group">
+                    <label for="mentor-name">Mentor Name</label>
+                    <input type="text" id="mentor-name" required placeholder="Enter mentor's full name">
+                </div>
+                <div class="form-group">
+                    <label for="mentor-email">Email Address</label>
+                    <input type="email" id="mentor-email" required placeholder="mentor@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="mentor-experience">Years of Experience</label>
+                    <input type="number" id="mentor-experience" min="1" max="50" required placeholder="5">
+                </div>
+                <div class="form-group">
+                    <label for="mentor-specialties">Specialties</label>
+                    <input type="text" id="mentor-specialties" placeholder="e.g., Confidence Building, Rule Knowledge">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('invite-mentor-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+    <script>
+        // Initialize dashboard
+        const dashboard = new RefReadyDashboard();
+        
+        // Check authentication
+        const auth = new RefReadyAuth();
+        if (!auth.isAuthenticated()) {
+            window.location.href = 'login.html';
+        } else {
+            dashboard.init(auth);
+        }
+        
+        // Global functions for onclick events
+        function logout() {
+            auth.logout();
+        }
+        
+        function showInviteReferee() {
+            document.getElementById('invite-referee-modal').style.display = 'block';
+        }
+        
+        function showInviteMentor() {
+            document.getElementById('invite-mentor-modal').style.display = 'block';
+        }
+        
+        function showAssignMentor() {
+            dashboard.showNotification('Mentor assignment feature coming soon!', 'info');
+        }
+        
+        function generateReport() {
+            dashboard.showNotification('Report generation feature coming soon!', 'info');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Handle form submissions
+        document.getElementById('invite-referee-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            dashboard.inviteReferee();
+        });
+        
+        document.getElementById('invite-mentor-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            dashboard.inviteMentor();
+        });
+    </script>
+</body>
+</html> 

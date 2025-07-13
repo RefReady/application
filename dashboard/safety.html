@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Alerts - RefReady Club Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="dashboard-logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+                <span class="dashboard-subtitle">Club Dashboard</span>
+            </div>
+            <div class="dashboard-user">
+                <div class="user-info">
+                    <div class="user-name" id="club-name">Loading...</div>
+                    <div class="user-role" id="club-role">Club Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <nav class="dashboard-sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="overview.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="referees.html" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            <span>Referees</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mentors.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            <span>Mentors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="safety.html" class="nav-link active">
+                            <span class="nav-icon">🆘</span>
+                            <span>Safety Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports.html" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Page Title -->
+                <div class="page-header">
+                    <h1 class="page-title">Safety Alert Management</h1>
+                    <p class="page-subtitle">Monitor safety incidents, track follow-ups, and maintain compliance</p>
+                </div>
+
+                <!-- Safety Stats -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🆘</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-alerts">3</div>
+                            <div class="metric-label">Total Alerts</div>
+                            <div class="metric-change neutral">This month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚠️</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="active-alerts">1</div>
+                            <div class="metric-label">Active Alerts</div>
+                            <div class="metric-change neutral">Requires attention</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="resolved-alerts">2</div>
+                            <div class="metric-label">Resolved Alerts</div>
+                            <div class="metric-change positive">This month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📞</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="parent-contacts">5</div>
+                            <div class="metric-label">Parent Contacts</div>
+                            <div class="metric-change neutral">This month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Status Overview -->
+                <div class="safety-status">
+                    <h2 class="section-title">Safety Status Overview</h2>
+                    <div class="safety-cards">
+                        <div class="safety-card status-good">
+                            <div class="safety-icon">🟢</div>
+                            <div class="safety-content">
+                                <h3>Overall Safety Status</h3>
+                                <p>Good - No critical incidents this month</p>
+                                <div class="safety-stats">
+                                    <span>Last incident: 2 weeks ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="safety-card status-attention">
+                            <div class="safety-icon">🟡</div>
+                            <div class="safety-content">
+                                <h3>Follow-Up Required</h3>
+                                <p>1 incident requires administrator attention</p>
+                                <div class="safety-stats">
+                                    <span>Priority: Medium</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="safety-card status-good">
+                            <div class="safety-icon">📋</div>
+                            <div class="safety-content">
+                                <h3>Compliance Status</h3>
+                                <p>All safety protocols up to date</p>
+                                <div class="safety-stats">
+                                    <span>Last review: 1 week ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">Safety Actions</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="showNewIncident()">
+                            <div class="action-icon">📝</div>
+                            <div class="action-content">
+                                <h3>Report Incident</h3>
+                                <p>Manual incident reporting</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showParentContact()">
+                            <div class="action-icon">📞</div>
+                            <div class="action-content">
+                                <h3>Contact Parent</h3>
+                                <p>Send safety communication</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showSafetyTraining()">
+                            <div class="action-icon">🎓</div>
+                            <div class="action-content">
+                                <h3>Safety Training</h3>
+                                <p>Schedule safety sessions</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showComplianceReport()">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h3>Compliance Report</h3>
+                                <p>Generate safety reports</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Safety Alerts -->
+                <div class="alerts-list">
+                    <div class="list-header">
+                        <h2 class="section-title">Recent Safety Alerts</h2>
+                        <div class="list-controls">
+                            <div class="filter-dropdown">
+                                <select id="alert-filter" onchange="filterAlerts()">
+                                    <option value="all">All Alerts</option>
+                                    <option value="active">Active</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="high">High Priority</option>
+                                    <option value="medium">Medium Priority</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alerts-grid" id="alerts-grid">
+                        <!-- Alert Card 1 - Active -->
+                        <div class="alert-card active" data-status="active" data-priority="medium">
+                            <div class="alert-header">
+                                <div class="alert-priority medium">Medium Priority</div>
+                                <div class="alert-status active">Active</div>
+                                <div class="alert-time">2 hours ago</div>
+                            </div>
+                            <div class="alert-content">
+                                <h3 class="alert-title">Spectator Misconduct</h3>
+                                <p class="alert-description">Emma Richardson reported inappropriate comments from spectators during U15 match. Referee felt uncomfortable and unsupported.</p>
+                                <div class="alert-details">
+                                    <span class="alert-referee">Referee: Emma Richardson</span>
+                                    <span class="alert-location">Location: Court 3</span>
+                                    <span class="alert-game">Game: U15 Division A</span>
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-sm btn-primary" onclick="followUpAlert('spectator-001')">Follow Up</button>
+                                <button class="btn btn-sm btn-secondary" onclick="contactParent('spectator-001')">Contact Parent</button>
+                                <button class="btn btn-sm btn-outline" onclick="viewAlertDetails('spectator-001')">View Details</button>
+                            </div>
+                        </div>
+
+                        <!-- Alert Card 2 - Resolved -->
+                        <div class="alert-card resolved" data-status="resolved" data-priority="low">
+                            <div class="alert-header">
+                                <div class="alert-priority low">Low Priority</div>
+                                <div class="alert-status resolved">Resolved</div>
+                                <div class="alert-time">1 day ago</div>
+                            </div>
+                            <div class="alert-content">
+                                <h3 class="alert-title">Minor Injury</h3>
+                                <p class="alert-description">James Wilson reported feeling dizzy during second quarter. Took appropriate break and recovered well.</p>
+                                <div class="alert-details">
+                                    <span class="alert-referee">Referee: James Wilson</span>
+                                    <span class="alert-location">Location: Court 1</span>
+                                    <span class="alert-game">Game: U13 Division B</span>
+                                </div>
+                            </div>
+                            <div class="alert-resolution">
+                                <div class="resolution-info">
+                                    <span class="resolution-label">Resolution:</span>
+                                    <span class="resolution-text">Referee took hydration break, mentor provided support, completed game successfully</span>
+                                </div>
+                                <div class="resolution-actions">
+                                    <span class="resolved-by">Resolved by: Mike Roberts</span>
+                                    <span class="resolved-time">1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert Card 3 - Resolved -->
+                        <div class="alert-card resolved" data-status="resolved" data-priority="medium">
+                            <div class="alert-header">
+                                <div class="alert-priority medium">Medium Priority</div>
+                                <div class="alert-status resolved">Resolved</div>
+                                <div class="alert-time">3 days ago</div>
+                            </div>
+                            <div class="alert-content">
+                                <h3 class="alert-title">Equipment Issue</h3>
+                                <p class="alert-description">Sophie Chen reported whistle malfunction during critical play. Caused confusion and delay in game.</p>
+                                <div class="alert-details">
+                                    <span class="alert-referee">Referee: Sophie Chen</span>
+                                    <span class="alert-location">Location: Court 2</span>
+                                    <span class="alert-game">Game: U16 Division A</span>
+                                </div>
+                            </div>
+                            <div class="alert-resolution">
+                                <div class="resolution-info">
+                                    <span class="resolution-label">Resolution:</span>
+                                    <span class="resolution-text">Backup whistle provided, equipment checklist updated, all referees notified</span>
+                                </div>
+                                <div class="resolution-actions">
+                                    <span class="resolved-by">Resolved by: Sarah Mitchell</span>
+                                    <span class="resolved-time">3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Protocols -->
+                <div class="safety-protocols">
+                    <h2 class="section-title">Safety Protocols</h2>
+                    <div class="protocol-grid">
+                        <div class="protocol-card">
+                            <div class="protocol-icon">📋</div>
+                            <div class="protocol-content">
+                                <h3>Emergency Procedures</h3>
+                                <p>Clear steps for handling safety emergencies</p>
+                                <div class="protocol-status">
+                                    <span class="status-indicator current">Current</span>
+                                    <span class="last-updated">Updated: 2 weeks ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="protocol-icon">📞</div>
+                            <div class="protocol-content">
+                                <h3>Parent Communication</h3>
+                                <p>Guidelines for safety-related parent contact</p>
+                                <div class="protocol-status">
+                                    <span class="status-indicator current">Current</span>
+                                    <span class="last-updated">Updated: 1 week ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="protocol-icon">🎓</div>
+                            <div class="protocol-content">
+                                <h3>Safety Training</h3>
+                                <p>Mandatory safety training for all referees</p>
+                                <div class="protocol-status">
+                                    <span class="status-indicator current">Current</span>
+                                    <span class="last-updated">Updated: 3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Initialize safety page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        // Filter alerts function
+        function filterAlerts() {
+            const filterValue = document.getElementById('alert-filter').value;
+            const alertCards = document.querySelectorAll('.alert-card');
+
+            alertCards.forEach(card => {
+                const status = card.dataset.status;
+                const priority = card.dataset.priority;
+                
+                let shouldShow = false;
+                
+                switch(filterValue) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'active':
+                        shouldShow = status === 'active';
+                        break;
+                    case 'resolved':
+                        shouldShow = status === 'resolved';
+                        break;
+                    case 'high':
+                        shouldShow = priority === 'high';
+                        break;
+                    case 'medium':
+                        shouldShow = priority === 'medium';
+                        break;
+                }
+                
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
+        // Show new incident modal
+        function showNewIncident() {
+            showNotification('Manual incident reporting feature coming soon!', 'info');
+        }
+
+        // Show parent contact modal
+        function showParentContact() {
+            showNotification('Parent contact feature coming soon!', 'info');
+        }
+
+        // Show safety training
+        function showSafetyTraining() {
+            showNotification('Safety training feature coming soon!', 'info');
+        }
+
+        // Show compliance report
+        function showComplianceReport() {
+            showNotification('Compliance report feature coming soon!', 'info');
+        }
+
+        // Follow up on alert
+        function followUpAlert(alertId) {
+            showNotification(`Following up on alert ${alertId} - feature coming soon!`, 'info');
+        }
+
+        // Contact parent about alert
+        function contactParent(alertId) {
+            showNotification(`Contacting parent about alert ${alertId} - feature coming soon!`, 'info');
+        }
+
+        // View alert details
+        function viewAlertDetails(alertId) {
+            showNotification(`Viewing details for alert ${alertId} - feature coming soon!`, 'info');
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentors - RefReady Club Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="dashboard-logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+                <span class="dashboard-subtitle">Club Dashboard</span>
+            </div>
+            <div class="dashboard-user">
+                <div class="user-info">
+                    <div class="user-name" id="club-name">Loading...</div>
+                    <div class="user-role" id="club-role">Club Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <nav class="dashboard-sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="overview.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="referees.html" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            <span>Referees</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mentors.html" class="nav-link active">
+                            <span class="nav-icon">🤝</span>
+                            <span>Mentors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="safety.html" class="nav-link">
+                            <span class="nav-icon">🆘</span>
+                            <span>Safety Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports.html" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Page Title -->
+                <div class="page-header">
+                    <h1 class="page-title">Mentor Management</h1>
+                    <p class="page-subtitle">Manage mentors, track assignments, and monitor feedback effectiveness</p>
+                </div>
+
+                <!-- Mentor Stats -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🤝</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-mentors">8</div>
+                            <div class="metric-label">Total Mentors</div>
+                            <div class="metric-change positive">+1 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="active-mentors">6</div>
+                            <div class="metric-label">Active This Month</div>
+                            <div class="metric-change neutral">Same as last month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💬</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="feedback-given">42</div>
+                            <div class="metric-label">Feedback Sessions</div>
+                            <div class="metric-change positive">+8 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⭐</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="avg-rating">4.6</div>
+                            <div class="metric-label">Average Rating</div>
+                            <div class="metric-change positive">+0.2 this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">Mentor Actions</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="showInviteMentor()">
+                            <div class="action-icon">📧</div>
+                            <div class="action-content">
+                                <h3>Invite New Mentor</h3>
+                                <p>Invite experienced referees to mentor</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showAssignMentor()">
+                            <div class="action-icon">🎯</div>
+                            <div class="action-content">
+                                <h3>Assign Mentor</h3>
+                                <p>Match mentors with referees</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showMentorTraining()">
+                            <div class="action-icon">🎓</div>
+                            <div class="action-content">
+                                <h3>Mentor Training</h3>
+                                <p>Schedule mentor development</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showFeedbackReport()">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h3>Feedback Report</h3>
+                                <p>Analyze mentor effectiveness</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mentor List -->
+                <div class="mentor-list">
+                    <div class="list-header">
+                        <h2 class="section-title">All Mentors</h2>
+                        <div class="list-controls">
+                            <div class="search-box">
+                                <input type="text" id="mentor-search" placeholder="Search mentors by name, level, or mentees..." onkeyup="filterMentors()">
+                            </div>
+                            <div class="filter-dropdown">
+                                <select id="mentor-filter" onchange="filterMentors()">
+                                    <option value="all">All Mentors</option>
+                                    <option value="senior">Senior Mentors</option>
+                                    <option value="club">Club Mentors</option>
+                                    <option value="volunteer">Volunteer Mentors</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mentor-table-container">
+                        <table class="mentor-table" id="mentor-table">
+                            <thead>
+                                <tr>
+                                    <th>Mentor</th>
+                                    <th>Level</th>
+                                    <th>Experience</th>
+                                    <th>Mentees</th>
+                                    <th>Feedback</th>
+                                    <th>Rating</th>
+                                    <th>Current Assignment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mentor-tbody">
+                                <tr class="mentor-row" data-level="senior">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👩</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">Sarah Mitchell</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge senior">Senior</span></td>
+                                    <td>5 years</td>
+                                    <td>4</td>
+                                    <td>18</td>
+                                    <td>4.8</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">Emma Richardson</span>
+                                            <span class="mentee-tag">Alex Thompson</span>
+                                            <span class="mentee-tag">+2 more</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('sarah')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="mentor-row" data-level="club">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👨</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">Mike Roberts</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge club">Club</span></td>
+                                    <td>3 years</td>
+                                    <td>3</td>
+                                    <td>12</td>
+                                    <td>4.5</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">James Wilson</span>
+                                            <span class="mentee-tag">Maya Kumar</span>
+                                            <span class="mentee-tag">Tom Brown</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('mike')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="mentor-row" data-level="senior">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👨</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">David Kim</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge senior">Senior</span></td>
+                                    <td>7 years</td>
+                                    <td>5</td>
+                                    <td>25</td>
+                                    <td>4.9</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">Rachel Green</span>
+                                            <span class="mentee-tag">Ben Taylor</span>
+                                            <span class="mentee-tag">+3 more</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('david')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="mentor-row" data-level="volunteer">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👩</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">Jennifer Adams</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge volunteer">Volunteer</span></td>
+                                    <td>2 years</td>
+                                    <td>2</td>
+                                    <td>8</td>
+                                    <td>4.3</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">Jordan Smith</span>
+                                            <span class="mentee-tag">Casey Jones</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('jennifer')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="mentor-row" data-level="club">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👨</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">Chris Wilson</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge club">Club</span></td>
+                                    <td>4 years</td>
+                                    <td>3</td>
+                                    <td>15</td>
+                                    <td>4.7</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">Marcus Johnson</span>
+                                            <span class="mentee-tag">Zoe Campbell</span>
+                                            <span class="mentee-tag">Ryan O'Connor</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('chris')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="mentor-row" data-level="volunteer">
+                                    <td class="mentor-info">
+                                        <div class="mentor-avatar">👩</div>
+                                        <div class="mentor-details">
+                                            <span class="mentor-name">Lisa Taylor</span>
+                                            <span class="mentor-status active">Active</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge volunteer">Volunteer</span></td>
+                                    <td>1 year</td>
+                                    <td>1</td>
+                                    <td>3</td>
+                                    <td>4.2</td>
+                                    <td>
+                                        <div class="mentee-tags">
+                                            <span class="mentee-tag">Lily Martinez</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewMentorProfile('lisa')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mentor Assignments Overview -->
+                <div class="assignments-overview">
+                    <h2 class="section-title">Assignment Overview</h2>
+                    <div class="assignments-grid">
+                        <div class="assignment-card">
+                            <div class="assignment-header">
+                                <h3>Unassigned Referees</h3>
+                                <span class="assignment-count">3</span>
+                            </div>
+                            <div class="assignment-list">
+                                <div class="assignment-item">
+                                    <span class="referee-name">New Referee 1</span>
+                                    <button class="btn btn-sm btn-primary" onclick="assignMentor('new1')">Assign</button>
+                                </div>
+                                <div class="assignment-item">
+                                    <span class="referee-name">New Referee 2</span>
+                                    <button class="btn btn-sm btn-primary" onclick="assignMentor('new2')">Assign</button>
+                                </div>
+                                <div class="assignment-item">
+                                    <span class="referee-name">New Referee 3</span>
+                                    <button class="btn btn-sm btn-primary" onclick="assignMentor('new3')">Assign</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="assignment-card">
+                            <div class="assignment-header">
+                                <h3>Available Mentors</h3>
+                                <span class="assignment-count">2</span>
+                            </div>
+                            <div class="assignment-list">
+                                <div class="assignment-item">
+                                    <span class="mentor-name">Linda Chang</span>
+                                    <span class="mentor-capacity">Capacity: 1 more</span>
+                                </div>
+                                <div class="assignment-item">
+                                    <span class="mentor-name">Robert Lee</span>
+                                    <span class="mentor-capacity">Capacity: 2 more</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Initialize mentors page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        // Filter mentors function
+        function filterMentors() {
+            const searchTerm = document.getElementById('mentor-search').value.toLowerCase();
+            const filterLevel = document.getElementById('mentor-filter').value;
+            const mentorRows = document.querySelectorAll('.mentor-row');
+
+            mentorRows.forEach(row => {
+                const mentorName = row.querySelector('.mentor-name').textContent.toLowerCase();
+                const mentorLevel = row.dataset.level;
+                const mentees = row.cells[6].textContent.toLowerCase(); // Current Assignment column
+                
+                const matchesSearch = mentorName.includes(searchTerm) || 
+                                    mentorLevel.includes(searchTerm) || 
+                                    mentees.includes(searchTerm);
+                
+                const matchesFilter = filterLevel === 'all' || mentorLevel === filterLevel;
+                
+                if (matchesSearch && matchesFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Show invite mentor modal
+        function showInviteMentor() {
+            showNotification('Invite mentor feature coming soon!', 'info');
+        }
+
+        // Show assign mentor modal
+        function showAssignMentor() {
+            showNotification('Mentor assignment feature coming soon!', 'info');
+        }
+
+        // Show mentor training
+        function showMentorTraining() {
+            showNotification('Mentor training feature coming soon!', 'info');
+        }
+
+        // Show feedback report
+        function showFeedbackReport() {
+            showNotification('Feedback report feature coming soon!', 'info');
+        }
+
+        // View mentor profile
+        function viewMentorProfile(mentorId) {
+            showNotification(`Viewing ${mentorId}'s profile - detailed view coming soon!`, 'info');
+        }
+
+        // Assign mentor to referee
+        function assignMentor(refereeId) {
+            showNotification(`Assigning mentor to ${refereeId} - feature coming soon!`, 'info');
+        }
+    </script>
+</body>
+</html> 

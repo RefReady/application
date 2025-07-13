@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RefReady Club Dashboard - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+            </div>
+            <h1>Club Dashboard</h1>
+            <p>Access your club's referee management system</p>
+        </div>
+
+        <div class="login-form-container">
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="club-email">Club Email</label>
+                    <input type="email" id="club-email" name="email" required placeholder="club@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="club-password">Password</label>
+                    <input type="password" id="club-password" name="password" required placeholder="Enter your password">
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" name="remember">
+                        <span class="checkmark"></span>
+                        Keep me logged in
+                    </label>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Access Dashboard</span>
+                    <span class="btn-loader" style="display: none;">🔄</span>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p><a href="#" id="forgot-password">Forgot password?</a></p>
+                <p><a href="#" id="need-help">Need help accessing your dashboard?</a></p>
+            </div>
+        </div>
+
+        <div class="login-demo">
+            <h3>🎯 Demo Access</h3>
+            <p>Try the dashboard with sample data:</p>
+            <button id="demo-login" class="demo-btn">View Demo Dashboard</button>
+            <small>No registration required - explore all features</small>
+        </div>
+    </div>
+
+    <div class="login-background">
+        <div class="bg-pattern"></div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('forgot-modal')">&times;</span>
+            <h2>Reset Password</h2>
+            <p>Enter your club email address and we'll send you a reset link.</p>
+            <form id="forgot-form">
+                <div class="form-group">
+                    <label for="reset-email">Club Email</label>
+                    <input type="email" id="reset-email" required placeholder="club@example.com">
+                </div>
+                <button type="submit" class="btn btn-primary">Send Reset Link</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('help-modal')">&times;</span>
+            <h2>Dashboard Access Help</h2>
+            <div class="help-content">
+                <h3>🆘 Need Help?</h3>
+                <p>If you're having trouble accessing your club dashboard:</p>
+                <ul>
+                    <li>📧 <strong>Email:</strong> support@refready.com</li>
+                    <li>📞 <strong>Phone:</strong> 1800-REF-READY</li>
+                    <li>🕐 <strong>Hours:</strong> Mon-Fri 9AM-5PM AEST</li>
+                </ul>
+                <h3>🔑 First Time Login?</h3>
+                <p>Your club admin credentials were sent to your designated email address when you subscribed. Check your spam folder if you can't find them.</p>
+                <h3>💡 Demo Access</h3>
+                <p>Use the "View Demo Dashboard" button to explore all features before logging in.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authFunctions, dbFunctions, utils } from '../firebase-config.js';
+
+        // Demo credentials for testing (will create Firebase accounts)
+        const demoCredentials = {
+            'admin@refready.com': { password: 'admin123', role: 'admin', name: 'RefReady Admin', displayName: 'Sarah Mitchell' },
+            'club@refready.com': { password: 'club123', role: 'coordinator', name: 'Club Administrator', displayName: 'Mike Roberts' },
+            'mentor@refready.com': { password: 'mentor123', role: 'mentor', name: 'Senior Mentor', displayName: 'David Kim' },
+            'referee@refready.com': { password: 'referee123', role: 'referee', name: 'Young Referee', displayName: 'Emma Richardson' }
+        };
+
+        // Check authentication state on page load
+        authFunctions.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is signed in, get their role and redirect
+                const userDoc = await dbFunctions.getUser(user.uid);
+                if (userDoc.success) {
+                    const userRole = userDoc.user.role;
+                    if (userRole === 'admin' || userRole === 'coordinator') {
+                        window.location.href = 'overview.html';
+                    } else {
+                        window.location.href = '../refready-mobile-app/index.html';
+                    }
+                }
+            }
+        });
+        
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('club-email').value.trim();
+            const password = document.getElementById('club-password').value;
+            const remember = document.getElementById('remember-me').checked;
+            
+            if (!email || !password) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Show loading state
+            const loginBtn = document.querySelector('.login-btn');
+            const btnText = loginBtn.querySelector('.btn-text');
+            const btnLoader = loginBtn.querySelector('.btn-loader');
+            
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline-block';
+            loginBtn.disabled = true;
+
+            try {
+                // Try to sign in with Firebase
+                const result = await authFunctions.signIn(email, password);
+                
+                if (result.success) {
+                    // Get user data from Firestore
+                    const userDoc = await dbFunctions.getUser(result.user.uid);
+                    
+                    if (userDoc.success) {
+                        // Remember user if checkbox is checked
+                        if (remember) {
+                            localStorage.setItem('refready_remember', email);
+                        } else {
+                            localStorage.removeItem('refready_remember');
+                        }
+
+                        showNotification('Login successful! Redirecting...', 'success');
+                        // Auth state change will handle redirect
+                    } else {
+                        showNotification('User profile not found. Please contact support.', 'error');
+                        await authFunctions.signOut();
+                    }
+                } else {
+                    // If login fails and it's a demo credential, try to create account
+                    if (demoCredentials[email] && demoCredentials[email].password === password) {
+                        await createDemoAccount(email, password);
+                    } else {
+                        showNotification(result.error || 'Login failed', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('An error occurred during login', 'error');
+            }
+
+            // Reset loading state
+            btnText.style.display = 'inline-block';
+            btnLoader.style.display = 'none';
+            loginBtn.disabled = false;
+        });
+
+        // Create demo account function
+        async function createDemoAccount(email, password) {
+            try {
+                const demoUser = demoCredentials[email];
+                
+                showNotification('Creating demo account...', 'info');
+                
+                // Get or create demo club
+                let clubId = localStorage.getItem('demoClubId');
+                if (!clubId) {
+                    clubId = await initializeDemoData();
+                    localStorage.setItem('demoClubId', clubId);
+                }
+                
+                const userData = {
+                    displayName: demoUser.displayName,
+                    role: demoUser.role,
+                    clubId: clubId,
+                    firstName: demoUser.displayName.split(' ')[0],
+                    lastName: demoUser.displayName.split(' ')[1] || '',
+                    experience: demoUser.role === 'referee' ? 'developing' : 'experienced'
+                };
+                
+                const result = await authFunctions.signUp(email, password, userData);
+                
+                if (result.success) {
+                    showNotification('Demo account created! Logging in...', 'success');
+                    // Auth state change will handle redirect
+                } else {
+                    showNotification(result.error || 'Failed to create demo account', 'error');
+                }
+            } catch (error) {
+                console.error('Demo account creation error:', error);
+                showNotification('Failed to create demo account', 'error');
+            }
+        }
+
+        // Initialize demo data function
+        async function initializeDemoData() {
+            try {
+                const clubResult = await dbFunctions.createClub({
+                    name: 'Riverside Netball Club',
+                    type: 'community',
+                    sport: 'netball',
+                    code: 'RNC2024',
+                    contact: {
+                        name: 'Sarah Mitchell',
+                        email: 'admin@riversidenetball.com',
+                        phone: '+61 8 1234 5678',
+                        address: '123 Sports Complex Drive\nAdelaide SA 5000\nAustralia'
+                    }
+                });
+
+                if (clubResult.success) {
+                    return clubResult.clubId;
+                }
+            } catch (error) {
+                console.error('Error initializing demo data:', error);
+            }
+            return null;
+        }
+        
+        // Handle demo login
+        document.getElementById('demo-login').addEventListener('click', () => {
+            // Fill in demo admin credentials
+            document.getElementById('club-email').value = 'admin@refready.com';
+            document.getElementById('club-password').value = 'admin123';
+            // Submit the form
+            document.getElementById('login-form').dispatchEvent(new Event('submit'));
+        });
+        
+        // Handle forgot password
+        document.getElementById('forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('forgot-modal').style.display = 'block';
+        });
+        
+        // Handle help link
+        document.getElementById('need-help').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('help-modal').style.display = 'block';
+        });
+        
+        // Handle forgot password form
+        document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value.trim();
+            
+            if (!email) {
+                showNotification('Please enter your email address', 'warning');
+                return;
+            }
+
+            try {
+                const result = await authFunctions.resetPassword(email);
+                if (result.success) {
+                    showNotification('Password reset email sent! Check your inbox.', 'success');
+                    closeModal('forgot-modal');
+                } else {
+                    showNotification(result.error || 'Failed to send password reset email', 'error');
+                }
+            } catch (error) {
+                showNotification('An error occurred', 'error');
+            }
+        });
+
+        // Check if user should be remembered
+        const rememberedEmail = localStorage.getItem('refready_remember');
+        if (rememberedEmail) {
+            document.getElementById('club-email').value = rememberedEmail;
+            document.getElementById('remember-me').checked = true;
+            document.getElementById('club-password').focus();
+        }
+        
+        // Password toggle function
+        function togglePassword() {
+            const passwordInput = document.getElementById('club-password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+        
+        // Modal close function
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.dashboard-notification');
+            existingNotifications.forEach(notification => notification.remove());
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `dashboard-notification ${type}`;
+            
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Show notification with animation
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Make functions available globally
+        window.togglePassword = togglePassword;
+        window.closeModal = closeModal;
+        window.showNotification = showNotification;
+    </script>
+</body>
+</html> 

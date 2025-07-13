@@ -1,0 +1,10 @@
+[debug] [2025-07-11T22:38:40.465Z] ----------------------------------------------------------------------
+[debug] [2025-07-11T22:38:40.469Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\AdamSawtell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:create --display-name RefReady Dashboard
+[debug] [2025-07-11T22:38:40.469Z] CLI Version:   14.10.1
+[debug] [2025-07-11T22:38:40.469Z] Platform:      win32
+[debug] [2025-07-11T22:38:40.469Z] Node Version:  v22.16.0
+[debug] [2025-07-11T22:38:40.470Z] Time:          Sat Jul 12 2025 08:08:40 GMT+0930 (Australian Central Standard Time)
+[debug] [2025-07-11T22:38:40.470Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-07-11T22:38:40.479Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-07-11T22:38:40.479Z] > authorizing via signed-in user (refreadynetball@gmail.com)

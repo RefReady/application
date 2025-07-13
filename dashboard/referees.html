@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referees - RefReady Club Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="dashboard-logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+                <span class="dashboard-subtitle">Club Dashboard</span>
+            </div>
+            <div class="dashboard-user">
+                <div class="user-info">
+                    <div class="user-name" id="club-name">Loading...</div>
+                    <div class="user-role" id="club-role">Club Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <nav class="dashboard-sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="overview.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="referees.html" class="nav-link active">
+                            <span class="nav-icon">👥</span>
+                            <span>Referees</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mentors.html" class="nav-link">
+                            <span class="nav-icon">🤝</span>
+                            <span>Mentors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="safety.html" class="nav-link">
+                            <span class="nav-icon">🆘</span>
+                            <span>Safety Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports.html" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Page Title -->
+                <div class="page-header">
+                    <h1 class="page-title">Referee Management</h1>
+                    <p class="page-subtitle">Manage your club's referees, track progress, and support development</p>
+                </div>
+
+                <!-- Referee Stats -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-referees">15</div>
+                            <div class="metric-label">Total Referees</div>
+                            <div class="metric-change positive">+2 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="active-referees">12</div>
+                            <div class="metric-label">Active This Month</div>
+                            <div class="metric-change positive">+1 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="avg-confidence">7.8</div>
+                            <div class="metric-label">Average Confidence</div>
+                            <div class="metric-change positive">+0.3 this month</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎖️</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="badges-earned">24</div>
+                            <div class="metric-label">Badges Earned</div>
+                            <div class="metric-change positive">+5 this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">Referee Actions</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="showInviteReferee()">
+                            <div class="action-icon">📧</div>
+                            <div class="action-content">
+                                <h3>Invite New Referee</h3>
+                                <p>Send invitation to join your club</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showBulkMessage()">
+                            <div class="action-icon">📢</div>
+                            <div class="action-content">
+                                <h3>Send Announcement</h3>
+                                <p>Message all referees at once</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showProgressReport()">
+                            <div class="action-icon">📊</div>
+                            <div class="action-content">
+                                <h3>Progress Report</h3>
+                                <p>Generate development reports</p>
+                            </div>
+                        </div>
+                        <div class="action-card" onclick="showTrainingSchedule()">
+                            <div class="action-icon">📅</div>
+                            <div class="action-content">
+                                <h3>Schedule Training</h3>
+                                <p>Organize development sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referee List -->
+                <div class="referee-list">
+                    <div class="list-header">
+                        <h2 class="section-title">All Referees</h2>
+                        <div class="list-controls">
+                            <div class="search-box">
+                                <input type="text" id="referee-search" placeholder="Search referees by name, level, or mentor..." onkeyup="filterReferees()">
+                            </div>
+                            <div class="filter-dropdown">
+                                <select id="referee-filter" onchange="filterReferees()">
+                                    <option value="all">All Referees</option>
+                                    <option value="active">Active</option>
+                                    <option value="newcomer">Newcomer</option>
+                                    <option value="developing">Developing</option>
+                                    <option value="experienced">Experienced</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="referee-table-container">
+                        <table class="referee-table" id="referee-table">
+                            <thead>
+                                <tr>
+                                    <th>Referee</th>
+                                    <th>Level</th>
+                                    <th>Games</th>
+                                    <th>Confidence</th>
+                                    <th>Badges</th>
+                                    <th>Mentor</th>
+                                    <th>Last Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="referee-tbody">
+                                <tr class="referee-row" data-level="developing">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👧</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Emma Richardson</span>
+                                            <span class="referee-age">Age 15</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge developing">Developing</span></td>
+                                    <td>12</td>
+                                    <td>8.2</td>
+                                    <td>3</td>
+                                    <td>Sarah Mitchell</td>
+                                    <td>2 days ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('emma')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="newcomer">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👦</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">James Wilson</span>
+                                            <span class="referee-age">Age 14</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge newcomer">Newcomer</span></td>
+                                    <td>6</td>
+                                    <td>6.5</td>
+                                    <td>1</td>
+                                    <td>Mike Roberts</td>
+                                    <td>1 week ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('james')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="experienced">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👩</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Alex Thompson</span>
+                                            <span class="referee-age">Age 16</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge experienced">Experienced</span></td>
+                                    <td>28</td>
+                                    <td>9.1</td>
+                                    <td>7</td>
+                                    <td>Sarah Mitchell</td>
+                                    <td>Yesterday</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('alex')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="developing">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👧</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Sophie Chen</span>
+                                            <span class="referee-age">Age 15</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge developing">Developing</span></td>
+                                    <td>15</td>
+                                    <td>7.8</td>
+                                    <td>4</td>
+                                    <td>David Kim</td>
+                                    <td>3 days ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('sophie')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="developing">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👦</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Marcus Johnson</span>
+                                            <span class="referee-age">Age 15</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge developing">Developing</span></td>
+                                    <td>8</td>
+                                    <td>7.1</td>
+                                    <td>2</td>
+                                    <td>Sarah Mitchell</td>
+                                    <td>1 week ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('marcus')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="newcomer">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👧</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Lily Martinez</span>
+                                            <span class="referee-age">Age 13</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge newcomer">Newcomer</span></td>
+                                    <td>1</td>
+                                    <td>5.8</td>
+                                    <td>1</td>
+                                    <td>Jennifer Adams</td>
+                                    <td>4 days ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('lily')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="experienced">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👦</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Ryan O'Connor</span>
+                                            <span class="referee-age">Age 18</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge experienced">Experienced</span></td>
+                                    <td>32</td>
+                                    <td>8.9</td>
+                                    <td>8</td>
+                                    <td>Mike Roberts</td>
+                                    <td>Yesterday</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('ryan')">View</button>
+                                    </td>
+                                </tr>
+                                <tr class="referee-row" data-level="developing">
+                                    <td class="referee-info">
+                                        <div class="referee-avatar">👧</div>
+                                        <div class="referee-details">
+                                            <span class="referee-name">Zoe Campbell</span>
+                                            <span class="referee-age">Age 16</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="level-badge developing">Developing</span></td>
+                                    <td>15</td>
+                                    <td>7.8</td>
+                                    <td>3</td>
+                                    <td>David Kim</td>
+                                    <td>3 days ago</td>
+                                    <td class="actions">
+                                        <button class="btn btn-sm btn-outline" onclick="viewRefereeProfile('zoe')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Initialize referees page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        // Filter referees function
+        function filterReferees() {
+            const searchTerm = document.getElementById('referee-search').value.toLowerCase();
+            const filterLevel = document.getElementById('referee-filter').value;
+            const refereeRows = document.querySelectorAll('.referee-row');
+
+            refereeRows.forEach(row => {
+                const refereeName = row.querySelector('.referee-name').textContent.toLowerCase();
+                const refereeLevel = row.dataset.level;
+                const mentor = row.cells[5].textContent.toLowerCase(); // Mentor column
+                
+                const matchesSearch = refereeName.includes(searchTerm) || 
+                                    refereeLevel.includes(searchTerm) || 
+                                    mentor.includes(searchTerm);
+                
+                const matchesFilter = filterLevel === 'all' || 
+                                    refereeLevel === filterLevel ||
+                                    (filterLevel === 'active' && true); // All shown referees are active
+                
+                if (matchesSearch && matchesFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Show invite referee modal
+        function showInviteReferee() {
+            showNotification('Invite referee feature coming soon!', 'info');
+        }
+
+        // Show bulk message modal
+        function showBulkMessage() {
+            showNotification('Bulk messaging feature coming soon!', 'info');
+        }
+
+        // Show progress report
+        function showProgressReport() {
+            showNotification('Progress report generation coming soon!', 'info');
+        }
+
+        // Show training schedule
+        function showTrainingSchedule() {
+            showNotification('Training schedule feature coming soon!', 'info');
+        }
+
+        // View referee profile
+        function viewRefereeProfile(refereeId) {
+            showNotification(`Viewing ${refereeId}'s profile - detailed view coming soon!`, 'info');
+        }
+    </script>
+</body>
+</html> 
