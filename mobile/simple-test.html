@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>RefReady - Mobile App Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f8f9fa; }
+        
+        .app-screen { display: none; padding: 20px; }
+        .app-screen.active { display: block; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; display: flex; justify-content: space-around;
+            padding: 15px 0; border-top: 1px solid #ccc;
+        }
+        
+        .nav-item {
+            text-align: center; cursor: pointer; padding: 10px;
+            border-radius: 10px; transition: background 0.3s;
+        }
+        
+        .nav-item.active { background: #6C5CE7; color: white; }
+        .nav-item:hover { background: #f0f0f0; }
+        
+        .test-button {
+            background: #6C5CE7; color: white; border: none;
+            padding: 15px 30px; border-radius: 10px; font-size: 16px;
+            cursor: pointer; margin: 10px;
+        }
+        
+        .test-button:hover { background: #5A4FCF; }
+        
+        h1 { color: #6C5CE7; margin-bottom: 20px; }
+        
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 10px; border: 2px solid #ddd; 
+            border-radius: 8px; font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="app-screen active">
+            <h1>🏐 RefReady - Home</h1>
+            <p>Welcome Emma! Your confidence: 8/10 ⭐</p>
+            <button class="test-button" onclick="showScreen('log-game')">Log Game 📝</button>
+            <button class="test-button" onclick="testAlert()">Test Safety Alert 🆘</button>
+        </div>
+
+        <!-- Game Logging Screen -->
+        <div id="log-game-screen" class="app-screen">
+            <h1>📝 Log Your Game</h1>
+            <form id="game-form" onsubmit="logGame(event)">
+                <div class="form-group">
+                    <label>Game Date:</label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Game Type:</label>
+                    <select required>
+                        <option value="">Select type</option>
+                        <option value="netball-u12">Netball Under 12</option>
+                        <option value="netball-u15">Netball Under 15</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Confidence (1-10):</label>
+                    <input type="range" min="1" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value">
+                    <span>5</span>
+                </div>
+                <button type="submit" class="test-button">Log Game! 🎉</button>
+                <button type="button" class="test-button" onclick="showScreen('home')">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Badges Screen -->
+        <div id="badges-screen" class="app-screen">
+            <h1>🎖️ Your Badges</h1>
+            <div style="background: white; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                <div style="font-size: 2rem;">🏐</div>
+                <h3>First Game Badge</h3>
+                <p>✅ Earned on March 15, 2024</p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                <div style="font-size: 2rem;">💪</div>
+                <h3>Confident Calls</h3>
+                <p>✅ Earned on April 2, 2024</p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="showScreen('home')">
+                <div>🏠</div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showScreen('log-game')">
+                <div>📝</div>
+                <div>Log Game</div>
+            </div>
+            <div class="nav-item" onclick="showScreen('badges')">
+                <div>🎖️</div>
+                <div>Badges</div>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        function showScreen(screenName) {
+            console.log('Switching to screen:', screenName);
+            
+            // Hide all screens
+            document.querySelectorAll('.app-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenName + '-screen').classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the correct nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            if (screenName === 'home') navItems[0].classList.add('active');
+            if (screenName === 'log-game') navItems[1].classList.add('active');
+            if (screenName === 'badges') navItems[2].classList.add('active');
+        }
+        
+        function logGame(event) {
+            event.preventDefault();
+            alert('🎉 Game logged successfully! Returning to home...');
+            showScreen('home');
+        }
+        
+        function testAlert() {
+            if (confirm('🆘 Send safety alert to coordinator?')) {
+                alert('Safety alert sent! Help is on the way.');
+            }
+        }
+        
+        console.log('RefReady test app loaded successfully!');
+    </script>
+</body>
+</html> 

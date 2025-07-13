@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>RefReady - Mobile App</title>
+    <meta name="description" content="RefReady mobile app for young referees">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#6C5CE7">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%236C5CE7'/><text x='50' y='65' text-anchor='middle' font-size='40' fill='white'>🏐</text></svg>">
+</head>
+<body class="mobile-app">
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="app-screen active">
+            <div class="app-header">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <span class="logo-icon">🏐</span>
+                        <h1>RefReady</h1>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Hi Emma! 👋</span>
+                        <span class="user-level">Rising Star</span>
+                        <button class="notification-bell" onclick="app.showNotificationCenter()" id="notification-bell">
+                            <span class="bell-icon">🔔</span>
+                            <span class="notification-badge" id="notification-count">3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-content">
+                <!-- Confidence Tracker -->
+                <div class="confidence-card">
+                    <h3>Today's Confidence Level</h3>
+                    <div class="confidence-display">
+                        <div class="confidence-stars">★★★★★★★★☆☆</div>
+                        <span class="confidence-level">8/10</span>
+                    </div>
+                    <p>You're doing great! Keep it up! 💪</p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <span class="stat-number">12</span>
+                            <span class="stat-label">Games Refereed</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎖️</div>
+                        <div class="stat-info">
+                            <span class="stat-number">5</span>
+                            <span class="stat-label">Badges Earned</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <span class="stat-number">4.8</span>
+                            <span class="stat-label">Avg Rating</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn add-game-btn nav-item" data-screen="add-game">
+                            <span class="btn-icon">📝</span>
+                            <span class="btn-text">Add Game</span>
+                        </button>
+                        <button class="action-btn nav-item" data-screen="analytics">
+                            <span class="btn-icon">📊</span>
+                            <span class="btn-text">Analytics</span>
+                        </button>
+                        <button class="action-btn nav-item" data-screen="goals">
+                            <span class="btn-icon">🎯</span>
+                            <span class="btn-text">Goals</span>
+                        </button>
+                        <button class="action-btn safety-btn" id="safety-alert-btn">
+                            <span class="btn-icon">🆘</span>
+                            <span class="btn-text">Safety Alert</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upcoming Games -->
+                <div class="upcoming-games">
+                    <h3>Upcoming Games</h3>
+                    <div class="games-list" id="upcoming-games-list">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-icon">🎖️</span>
+                            <div class="activity-content">
+                                <span class="activity-text">Badge earned: Mentor Favorite</span>
+                                <span class="activity-time">2 days ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-icon">💬</span>
+                            <div class="activity-content">
+                                <span class="activity-text">New feedback from Sarah M.</span>
+                                <span class="activity-time">3 days ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-icon">📝</span>
+                            <div class="activity-content">
+                                <span class="activity-text">Game logged: Under 15s Finals</span>
+                                <span class="activity-time">1 week ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Game Screen -->
+        <div id="add-game-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Add Game 📝</h2>
+                <p>Schedule upcoming games or log completed games</p>
+            </div>
+
+            <div class="app-content">
+                <form id="game-form" class="game-form">
+                    <div class="form-group">
+                        <label for="game-date">Game Date</label>
+                        <input type="date" id="game-date" name="game-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="game-time">Game Time</label>
+                        <input type="time" id="game-time" name="game-time" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="game-type">Game Type</label>
+                        <select id="game-type" name="game-type" required>
+                            <option value="">Select game type</option>
+                            <option value="netball-u12">Netball Under 12</option>
+                            <option value="netball-u15">Netball Under 15</option>
+                            <option value="netball-u18">Netball Under 18</option>
+                            <option value="netball-open">Netball Open</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="venue">Venue</label>
+                        <input type="text" id="venue" name="venue" placeholder="Where will you referee?" required>
+                    </div>
+
+                    <div class="form-group" id="confidence-group" style="display: none;">
+                        <label for="confidence">How confident did you feel? (1-10)</label>
+                        <div class="confidence-slider">
+                            <input type="range" id="confidence" name="confidence" min="1" max="10" value="5">
+                            <div class="slider-labels">
+                                <span>Not confident</span>
+                                <span>Very confident</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes"><span id="notes-label">Game Notes (optional)</span></label>
+                        <textarea id="notes" name="notes" placeholder="Any special notes about this game?" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary nav-item" data-screen="home">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submit-game-btn">Add Game 📅</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Badges Screen -->
+        <div id="badges-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Your Badges 🎖️</h2>
+                <p>Track your achievements and progress</p>
+            </div>
+
+            <div class="app-content">
+                <div class="badge-summary">
+                    <div class="badge-count">
+                        <span class="count-number">5</span>
+                        <span class="count-label">Badges Earned</span>
+                    </div>
+                    <div class="badge-progress">
+                        <span class="progress-text">Next: Season Strong (12/20)</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="badges-container" class="badges-list">
+                    <!-- Badges will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Screen -->
+        <div id="feedback-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Feedback & Support 💬</h2>
+                <p>Your mentor feedback and growth insights</p>
+            </div>
+            
+            <div class="app-content">
+                <!-- Action Buttons -->
+                <div class="feedback-actions">
+                    <button class="btn btn-primary" onclick="app.showQRCode()">📱 Show QR for Mentor</button>
+                    <button class="btn btn-secondary" onclick="app.showMentorForm()">🎓 I'm a Mentor</button>
+                </div>
+
+                <!-- Feedback Statistics -->
+                <div class="feedback-stats">
+                    <h3>Your Feedback Summary</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-feedback-count">8</div>
+                            <div class="stat-label">Total Feedback</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avg-rating">4.3</div>
+                            <div class="stat-label">Avg Rating</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="improvement-score">+15%</div>
+                            <div class="stat-label">Improvement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Feedback -->
+                <div class="recent-feedback">
+                    <h3>Recent Feedback</h3>
+                    <div id="feedback-list">
+                        <!-- Dynamic feedback items will be inserted here -->
+                    </div>
+                    <button class="view-all-btn" onclick="app.showAllFeedback()">View All Feedback</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced QR Code Modal -->
+        <div id="qr-modal" class="modal">
+            <div class="modal-content qr-enhanced">
+                <div class="modal-header">
+                    <h3>Secure Mentor Access 📱</h3>
+                    <span class="close" onclick="app.closeModal('qr-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="qr-display-enhanced">
+                        <div class="qr-info">
+                            <div class="game-context">
+                                <h4 id="qr-game-title">U15 vs Adelaide Hills</h4>
+                                <p id="qr-game-details">Today, 2:30 PM • Court 2</p>
+                                <p class="referee-info">Referee: <strong id="qr-referee-name">Emma Richardson</strong></p>
+                            </div>
+                            
+                            <div class="qr-security">
+                                <div class="security-indicator active">
+                                    <span class="security-icon">🔒</span>
+                                    <span class="security-text">Secure Code Active</span>
+                                </div>
+                                <div class="expiry-timer">
+                                    <span class="timer-icon">⏰</span>
+                                    <span id="qr-expiry-time">Expires in: 14:32</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qr-code-container">
+                            <div class="qr-code enhanced" id="qr-code">
+                                <div class="qr-pattern">
+                                    <div class="qr-corner top-left"></div>
+                                    <div class="qr-corner top-right"></div>
+                                    <div class="qr-corner bottom-left"></div>
+                                    <div class="qr-data-pattern">
+                                        <div class="qr-row">
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                        </div>
+                                        <div class="qr-row">
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                        </div>
+                                        <div class="qr-row">
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                        </div>
+                                        <div class="qr-row">
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                        </div>
+                                        <div class="qr-row">
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                            <div class="qr-module filled"></div>
+                                            <div class="qr-module"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="qr-code-id">
+                                <span class="code-label">Code ID:</span>
+                                <span id="qr-unique-id">RefReady-2024-001-GH7K</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-instructions">
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h5>Show to Mentor</h5>
+                                <p>Display this QR code to your assigned mentor after the game</p>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h5>Mentor Scans</h5>
+                                <p>They scan with any QR reader or camera app</p>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h5>Secure Feedback</h5>
+                                <p>Opens a secure feedback form linked to this specific game</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-actions">
+                        <button class="btn btn-secondary" onclick="app.generateNewQR()">
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">Generate New Code</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="app.shareQRCode()">
+                            <span class="btn-icon">📱</span>
+                            <span class="btn-text">Share Code</span>
+                        </button>
+                    </div>
+
+                    <div class="qr-mentor-info">
+                        <h5>Assigned Mentors</h5>
+                        <div class="mentor-list">
+                            <div class="mentor-item">
+                                <div class="mentor-avatar">🤝</div>
+                                <div class="mentor-details">
+                                    <span class="mentor-name">Sarah Mitchell</span>
+                                    <span class="mentor-role">Senior Mentor</span>
+                                </div>
+                                <div class="mentor-status online">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Available</span>
+                                </div>
+                            </div>
+                            <div class="mentor-item">
+                                <div class="mentor-avatar">🤝</div>
+                                <div class="mentor-details">
+                                    <span class="mentor-name">Mike Roberts</span>
+                                    <span class="mentor-role">Club Mentor</span>
+                                </div>
+                                <div class="mentor-status offline">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Offline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-security-info">
+                        <div class="security-features">
+                            <div class="security-feature">
+                                <span class="feature-icon">🔒</span>
+                                <span class="feature-text">One-time use code</span>
+                            </div>
+                            <div class="security-feature">
+                                <span class="feature-icon">⏰</span>
+                                <span class="feature-text">15-minute expiration</span>
+                            </div>
+                            <div class="security-feature">
+                                <span class="feature-icon">🎯</span>
+                                <span class="feature-text">Game-specific feedback</span>
+                            </div>
+                            <div class="security-feature">
+                                <span class="feature-icon">👤</span>
+                                <span class="feature-text">Mentor verification required</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mentor Feedback Form Modal -->
+        <div id="mentor-modal" class="modal">
+            <div class="modal-content mentor-form">
+                <div class="modal-header">
+                    <h3>Mentor Feedback Form 🎓</h3>
+                    <span class="close" onclick="app.closeModal('mentor-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="mentor-feedback-form">
+                        <!-- Mentor Info -->
+                        <div class="form-section">
+                            <h4>Mentor Information</h4>
+                            <div class="form-group">
+                                <label for="mentor-name">Your Name</label>
+                                <input type="text" id="mentor-name" required placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label for="mentor-role">Your Role</label>
+                                <select id="mentor-role" required>
+                                    <option value="">Select your role</option>
+                                    <option value="senior-mentor">Senior Mentor</option>
+                                    <option value="club-mentor">Club Mentor</option>
+                                    <option value="experienced-referee">Experienced Referee</option>
+                                    <option value="coach">Coach/Coordinator</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Game Context -->
+                        <div class="form-section">
+                            <h4>Game Information</h4>
+                            <div class="form-group">
+                                <label for="game-details">Game Details</label>
+                                <input type="text" id="game-details" placeholder="e.g., U15 Netball, Court 2" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="game-date">Date</label>
+                                <input type="date" id="game-date" required>
+                            </div>
+                        </div>
+
+                        <!-- Performance Ratings -->
+                        <div class="form-section">
+                            <h4>Performance Assessment</h4>
+                            
+                            <div class="rating-group">
+                                <label>Positioning & Movement</label>
+                                <div class="star-rating" data-rating="positioning">
+                                    <span class="star" data-value="1">⭐</span>
+                                    <span class="star" data-value="2">⭐</span>
+                                    <span class="star" data-value="3">⭐</span>
+                                    <span class="star" data-value="4">⭐</span>
+                                    <span class="star" data-value="5">⭐</span>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <label>Communication</label>
+                                <div class="star-rating" data-rating="communication">
+                                    <span class="star" data-value="1">⭐</span>
+                                    <span class="star" data-value="2">⭐</span>
+                                    <span class="star" data-value="3">⭐</span>
+                                    <span class="star" data-value="4">⭐</span>
+                                    <span class="star" data-value="5">⭐</span>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <label>Whistle Use & Timing</label>
+                                <div class="star-rating" data-rating="whistle">
+                                    <span class="star" data-value="1">⭐</span>
+                                    <span class="star" data-value="2">⭐</span>
+                                    <span class="star" data-value="3">⭐</span>
+                                    <span class="star" data-value="4">⭐</span>
+                                    <span class="star" data-value="5">⭐</span>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <label>Confidence & Presence</label>
+                                <div class="star-rating" data-rating="confidence">
+                                    <span class="star" data-value="1">⭐</span>
+                                    <span class="star" data-value="2">⭐</span>
+                                    <span class="star" data-value="3">⭐</span>
+                                    <span class="star" data-value="4">⭐</span>
+                                    <span class="star" data-value="5">⭐</span>
+                                </div>
+                            </div>
+
+                            <div class="rating-group">
+                                <label>Rule Knowledge</label>
+                                <div class="star-rating" data-rating="rules">
+                                    <span class="star" data-value="1">⭐</span>
+                                    <span class="star" data-value="2">⭐</span>
+                                    <span class="star" data-value="3">⭐</span>
+                                    <span class="star" data-value="4">⭐</span>
+                                    <span class="star" data-value="5">⭐</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Written Feedback -->
+                        <div class="form-section">
+                            <h4>Written Feedback</h4>
+                            <div class="form-group">
+                                <label for="strengths">Key Strengths (What they did well)</label>
+                                <textarea id="strengths" rows="3" placeholder="Highlight 2-3 things they excelled at today..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="improvements">Areas for Growth</label>
+                                <textarea id="improvements" rows="3" placeholder="Suggest 1-2 specific areas to focus on..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="encouragement">Encouragement Message</label>
+                                <textarea id="encouragement" rows="2" placeholder="Leave an encouraging message to boost their confidence..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Badge Recommendation -->
+                        <div class="form-section">
+                            <h4>Badge Progress</h4>
+                            <div class="badge-recommendations">
+                                <label>
+                                    <input type="checkbox" name="badge-ready" value="communication">
+                                    Communication Badge Ready
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="badge-ready" value="positioning">
+                                    Positioning Badge Ready
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="badge-ready" value="confidence">
+                                    Confidence Badge Ready
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="app.submitMentorFeedback()">Submit Feedback</button>
+                    <button class="btn btn-secondary" onclick="app.closeModal('mentor-modal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Feedback View Modal -->
+        <div id="feedback-detail-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Feedback Details 📝</h3>
+                    <span class="close" onclick="app.closeModal('feedback-detail-modal')">&times;</span>
+                </div>
+                <div class="modal-body" id="feedback-detail-content">
+                    <!-- Dynamic feedback details will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('feedback-detail-modal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario Training Screen -->
+        <div id="training-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Rule Training 🧠</h2>
+                <p>Practice real-game scenarios and improve your rule knowledge</p>
+            </div>
+            
+            <div class="app-content">
+                <!-- Training Dashboard -->
+                <div class="training-dashboard">
+                    <div class="training-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="quizzes-completed">12</div>
+                            <div class="stat-label">Quizzes Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="average-score">87%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="current-streak">5</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Difficulty Selection -->
+                <div class="difficulty-selection">
+                    <h3>Choose Your Challenge Level</h3>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn beginner" onclick="app.startScenarioQuiz('beginner')">
+                            <div class="difficulty-icon">🌟</div>
+                            <h4>Beginner</h4>
+                            <p>Basic rules and common situations</p>
+                        </button>
+                        <button class="difficulty-btn intermediate" onclick="app.startScenarioQuiz('intermediate')">
+                            <div class="difficulty-icon">⚡</div>
+                            <h4>Intermediate</h4>
+                            <p>Complex scenarios and edge cases</p>
+                        </button>
+                        <button class="difficulty-btn advanced" onclick="app.startScenarioQuiz('advanced')">
+                            <div class="difficulty-icon">🔥</div>
+                            <h4>Advanced</h4>
+                            <p>Professional-level situations</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Training Activity -->
+                <div class="recent-training">
+                    <h3>Recent Activity</h3>
+                    <div id="training-activity-list">
+                        <!-- Dynamic training history will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Quick Practice -->
+                <div class="quick-practice">
+                    <h3>Quick Practice</h3>
+                    <button class="btn btn-primary" onclick="app.startRandomScenario()">
+                        🎯 Random Scenario Challenge
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario Quiz Modal -->
+        <div id="scenario-quiz-modal" class="modal">
+            <div class="modal-content scenario-modal">
+                <div class="modal-header">
+                    <h3 id="quiz-title">Scenario Training</h3>
+                    <div class="quiz-progress">
+                        <span id="question-counter">Question 1 of 5</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="quiz-progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div id="quiz-content">
+                        <!-- Dynamic quiz content will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer" id="quiz-footer">
+                    <!-- Dynamic quiz footer will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Results Modal -->
+        <div id="quiz-results-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Quiz Complete! 🎉</h3>
+                </div>
+                <div class="modal-body">
+                    <div id="quiz-results-content">
+                        <!-- Dynamic results content will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('quiz-results-modal')">Close</button>
+                    <button class="btn btn-primary" onclick="app.closeModal('quiz-results-modal'); app.startScenarioQuiz()">Try Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile Screen -->
+        <div id="profile-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Your Profile 👤</h2>
+                <p>Manage your referee journey</p>
+            </div>
+
+            <div class="app-content">
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">👩‍⚖️</div>
+                        <button class="change-avatar-btn">Change</button>
+                    </div>
+                    <div class="profile-info">
+                        <h3 id="profile-name">Emma Richardson</h3>
+                        <p id="profile-level">Rising Star Referee</p>
+                        <p id="profile-club">Adelaide Netball Association</p>
+                        <div class="profile-since">
+                            <span class="since-icon">📅</span>
+                            <span>Referee since January 2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Summary -->
+                <div class="profile-stats">
+                    <h3>Your Journey So Far</h3>
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <div class="stat-icon">🏐</div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="total-games">12</span>
+                                <span class="stat-label">Games Refereed</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="avg-confidence">8.2</span>
+                                <span class="stat-label">Avg Confidence</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">🎖️</div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="total-badges">5</span>
+                                <span class="stat-label">Badges Earned</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="feedback-count">8</span>
+                                <span class="stat-label">Feedback Received</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certification & Level -->
+                <div class="certification-section">
+                    <h3>Certification & Progress</h3>
+                    <div class="cert-card">
+                        <div class="cert-info">
+                            <div class="cert-icon">🏆</div>
+                            <div class="cert-details">
+                                <h4>Foundation Level Certified</h4>
+                                <p>Netball SA Accreditation</p>
+                                <div class="cert-progress">
+                                    <span>Progress to Intermediate: 60%</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="view-cert-btn">View Certificate</button>
+                    </div>
+                </div>
+
+                <!-- Goals & Aspirations -->
+                <div class="goals-section">
+                    <h3>Your Goals 🎯</h3>
+                    <div class="goal-list">
+                        <div class="goal-item">
+                            <div class="goal-icon">📈</div>
+                            <div class="goal-content">
+                                <h4>Improve Confidence</h4>
+                                <p>Target: 9/10 average confidence</p>
+                                <div class="goal-progress">Current: 8.2/10</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-icon">🏐</div>
+                            <div class="goal-content">
+                                <h4>Complete Season</h4>
+                                <p>Target: 20 games this season</p>
+                                <div class="goal-progress">Progress: 12/20 games</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-icon">🌟</div>
+                            <div class="goal-content">
+                                <h4>Earn All Badges</h4>
+                                <p>Target: Collect all 10 referee badges</p>
+                                <div class="goal-progress">Earned: 5/10 badges</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings & Preferences -->
+                <div class="settings-section">
+                    <h3>Settings ⚙️</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-icon">🔔</span>
+                                <div class="setting-text">
+                                    <h4>Notifications</h4>
+                                    <p>Feedback alerts, safety reminders</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-icon">🔒</span>
+                                <div class="setting-text">
+                                    <h4>Privacy Settings</h4>
+                                    <p>Control data sharing</p>
+                                </div>
+                            </div>
+                            <button class="setting-action">Manage</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-icon">📊</span>
+                                <div class="setting-text">
+                                    <h4>Data Export</h4>
+                                    <p>Download your referee data</p>
+                                </div>
+                            </div>
+                            <button class="setting-action">Export</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-icon">❓</span>
+                                <div class="setting-text">
+                                    <h4>Help & Support</h4>
+                                    <p>FAQs, contact support</p>
+                                </div>
+                            </div>
+                            <button class="setting-action">Help</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-icon">🔧</span>
+                                <div class="setting-text">
+                                    <h4>Demo Admin Access</h4>
+                                    <p>Access club admin features</p>
+                                </div>
+                            </div>
+                            <button class="setting-action" onclick="app.toggleAdminAccess()">Enable</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="account-actions">
+                    <button class="btn btn-secondary edit-profile-btn">Edit Profile</button>
+                    <button class="btn btn-outline logout-btn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-screen="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item" data-screen="badges">
+                <span class="nav-icon">🎖️</span>
+                <span class="nav-label">Badges</span>
+            </div>
+            <div class="nav-item" data-screen="feedback">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Feedback</span>
+            </div>
+            <div class="nav-item" data-screen="training">
+                <span class="nav-icon">🧠</span>
+                <span class="nav-label">Training</span>
+            </div>
+            <div class="nav-item" data-screen="profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Profile</span>
+            </div>
+
+        </nav>
+
+
+
+
+
+        <!-- Analytics Screen -->
+        <div id="analytics-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Your Progress Analytics 📊</h2>
+                <p>Track your growth and celebrate achievements</p>
+            </div>
+
+            <div class="app-content">
+                <!-- Time Period Selector -->
+                <div class="analytics-period">
+                    <div class="period-selector">
+                        <button class="period-btn active" data-period="month">This Month</button>
+                        <button class="period-btn" data-period="quarter">3 Months</button>
+                        <button class="period-btn" data-period="year">Year</button>
+                        <button class="period-btn" data-period="all">All Time</button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Overview -->
+                <div class="metrics-overview">
+                    <div class="metric-card confidence-trend">
+                        <div class="metric-header">
+                            <h3>🎯 Confidence Growth</h3>
+                            <span class="metric-change positive">+2.3 this month</span>
+                        </div>
+                        <div class="metric-value">8.2<span class="metric-unit">/10</span></div>
+                        <div class="confidence-chart-container">
+                            <canvas id="confidence-chart" width="300" height="120"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card games-frequency">
+                        <div class="metric-header">
+                            <h3>📅 Game Frequency</h3>
+                            <span class="metric-change positive">+33% increase</span>
+                        </div>
+                        <div class="metric-value">12<span class="metric-unit"> games</span></div>
+                        <div class="frequency-bars">
+                            <div class="frequency-bar">
+                                <div class="bar-fill" style="height: 60%"></div>
+                                <span class="bar-label">Week 1</span>
+                            </div>
+                            <div class="frequency-bar">
+                                <div class="bar-fill" style="height: 80%"></div>
+                                <span class="bar-label">Week 2</span>
+                            </div>
+                            <div class="frequency-bar">
+                                <div class="bar-fill" style="height: 100%"></div>
+                                <span class="bar-label">Week 3</span>
+                            </div>
+                            <div class="frequency-bar">
+                                <div class="bar-fill" style="height: 85%"></div>
+                                <span class="bar-label">Week 4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card badge-progress">
+                        <div class="metric-header">
+                            <h3>🎖️ Badge Collection</h3>
+                            <span class="metric-change neutral">5 earned</span>
+                        </div>
+                        <div class="badge-timeline">
+                            <div class="timeline-item earned">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="badge-name">First Game</span>
+                                    <span class="badge-date">Jan 15</span>
+                                </div>
+                            </div>
+                            <div class="timeline-item earned">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="badge-name">Confident Calls</span>
+                                    <span class="badge-date">Feb 3</span>
+                                </div>
+                            </div>
+                            <div class="timeline-item earned">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="badge-name">Feedback Champion</span>
+                                    <span class="badge-date">Feb 20</span>
+                                </div>
+                            </div>
+                            <div class="timeline-item upcoming">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="badge-name">Season Strong</span>
+                                    <span class="badge-progress-text">12/20 games</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics -->
+                <div class="detailed-analytics">
+                    <div class="analytics-section">
+                        <h3>📈 Performance Trends</h3>
+                        <div class="performance-grid">
+                            <div class="performance-item">
+                                <div class="performance-chart">
+                                    <canvas id="feedback-chart" width="150" height="100"></canvas>
+                                </div>
+                                <div class="performance-details">
+                                    <h4>Mentor Feedback Scores</h4>
+                                    <p class="trend-text">Average: <strong>4.3/5</strong></p>
+                                    <p class="improvement-text">+12% improvement this month</p>
+                                </div>
+                            </div>
+                            <div class="performance-item">
+                                <div class="skill-breakdown">
+                                    <div class="skill-bar">
+                                        <span class="skill-name">Positioning</span>
+                                        <div class="skill-progress">
+                                            <div class="skill-fill" style="width: 85%"></div>
+                                            <span class="skill-score">4.2/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <span class="skill-name">Communication</span>
+                                        <div class="skill-progress">
+                                            <div class="skill-fill" style="width: 90%"></div>
+                                            <span class="skill-score">4.5/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <span class="skill-name">Confidence</span>
+                                        <div class="skill-progress">
+                                            <div class="skill-fill" style="width: 78%"></div>
+                                            <span class="skill-score">3.9/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <span class="skill-name">Rule Knowledge</span>
+                                        <div class="skill-progress">
+                                            <div class="skill-fill" style="width: 88%"></div>
+                                            <span class="skill-score">4.4/5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-section">
+                        <h3>🎯 Achievement Milestones</h3>
+                        <div class="milestones-grid">
+                            <div class="milestone-card completed">
+                                <div class="milestone-icon">🏆</div>
+                                <div class="milestone-content">
+                                    <h4>First Month Complete</h4>
+                                    <p>Referee for 30 days straight</p>
+                                    <span class="milestone-date">Achieved Feb 15</span>
+                                </div>
+                            </div>
+                            <div class="milestone-card in-progress">
+                                <div class="milestone-icon">🎯</div>
+                                <div class="milestone-content">
+                                    <h4>Confidence Builder</h4>
+                                    <p>Maintain 8+ confidence for 5 games</p>
+                                    <div class="milestone-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 60%"></div>
+                                        </div>
+                                        <span class="progress-text">3/5 games</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="milestone-card upcoming">
+                                <div class="milestone-icon">⭐</div>
+                                <div class="milestone-content">
+                                    <h4>Star Performer</h4>
+                                    <p>Receive 10 mentor feedback</p>
+                                    <div class="milestone-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 80%"></div>
+                                        </div>
+                                        <span class="progress-text">8/10 feedback</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-section">
+                        <h3>📊 Export & Share</h3>
+                        <div class="export-options">
+                            <button class="export-btn" onclick="app.exportAnalytics('summary')">
+                                <span class="export-icon">📄</span>
+                                <span class="export-text">Progress Summary</span>
+                            </button>
+                            <button class="export-btn" onclick="app.exportAnalytics('detailed')">
+                                <span class="export-icon">📊</span>
+                                <span class="export-text">Detailed Report</span>
+                            </button>
+                            <button class="export-btn" onclick="app.shareProgress()">
+                                <span class="export-icon">📱</span>
+                                <span class="export-text">Share Achievement</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Screen -->
+        <div id="goals-screen" class="app-screen">
+            <div class="screen-header">
+                <h2>Personal Goals 🎯</h2>
+                <p>Set targets and track your referee development</p>
+            </div>
+
+            <div class="app-content">
+                <!-- Goal Categories -->
+                <div class="goal-categories">
+                    <button class="category-btn active" data-category="confidence">💪 Confidence</button>
+                    <button class="category-btn" data-category="games">📅 Games</button>
+                    <button class="category-btn" data-category="skills">🎯 Skills</button>
+                    <button class="category-btn" data-category="badges">🎖️ Badges</button>
+                </div>
+
+                <!-- Active Goals Overview -->
+                <div class="goals-overview">
+                    <div class="overview-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">3</span>
+                            <span class="stat-label">Active Goals</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label">Completed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">67%</span>
+                            <span class="stat-label">Avg Progress</span>
+                        </div>
+                    </div>
+                    <button class="add-goal-btn" onclick="app.showGoalCreator()">
+                        <span class="btn-icon">➕</span>
+                        <span class="btn-text">Set New Goal</span>
+                    </button>
+                </div>
+
+                <!-- Current Goals List -->
+                <div class="current-goals">
+                    <h3>Your Current Goals</h3>
+                    
+                    <div class="goal-card active confidence-goal">
+                        <div class="goal-header">
+                            <div class="goal-icon">💪</div>
+                            <div class="goal-info">
+                                <h4>Boost Confidence</h4>
+                                <p>Maintain 8+ confidence for 5 consecutive games</p>
+                            </div>
+                            <div class="goal-menu">
+                                <button class="menu-btn" onclick="app.showGoalActions('goal-1')">⋯</button>
+                            </div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-visual">
+                                <div class="progress-bar">
+                                    <div class="progress-fill confidence-progress" style="width: 60%"></div>
+                                </div>
+                                <span class="progress-text">3/5 games</span>
+                            </div>
+                            <div class="goal-timeline">
+                                <span class="goal-start">Started: Feb 1</span>
+                                <span class="goal-target">Target: Mar 15</span>
+                            </div>
+                        </div>
+                        <div class="goal-insights">
+                            <div class="insight-item">
+                                <span class="insight-icon">📈</span>
+                                <span class="insight-text">Your last 2 games averaged 8.5 confidence!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="goal-card active games-goal">
+                        <div class="goal-header">
+                            <div class="goal-icon">📅</div>
+                            <div class="goal-info">
+                                <h4>Weekly Consistency</h4>
+                                <p>Referee at least 2 games per week for 4 weeks</p>
+                            </div>
+                            <div class="goal-menu">
+                                <button class="menu-btn" onclick="app.showGoalActions('goal-2')">⋯</button>
+                            </div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-visual">
+                                <div class="progress-bar">
+                                    <div class="progress-fill games-progress" style="width: 75%"></div>
+                                </div>
+                                <span class="progress-text">3/4 weeks</span>
+                            </div>
+                            <div class="weekly-tracker">
+                                <div class="week-item completed">
+                                    <span class="week-label">W1</span>
+                                    <span class="week-count">3 games</span>
+                                </div>
+                                <div class="week-item completed">
+                                    <span class="week-label">W2</span>
+                                    <span class="week-count">2 games</span>
+                                </div>
+                                <div class="week-item completed">
+                                    <span class="week-label">W3</span>
+                                    <span class="week-count">2 games</span>
+                                </div>
+                                <div class="week-item current">
+                                    <span class="week-label">W4</span>
+                                    <span class="week-count">1/2 games</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="goal-card active skills-goal">
+                        <div class="goal-header">
+                            <div class="goal-icon">🎯</div>
+                            <div class="goal-info">
+                                <h4>Improve Communication</h4>
+                                <p>Achieve 4.5+ average in communication feedback</p>
+                            </div>
+                            <div class="goal-menu">
+                                <button class="menu-btn" onclick="app.showGoalActions('goal-3')">⋯</button>
+                            </div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-visual">
+                                <div class="progress-bar">
+                                    <div class="progress-fill skills-progress" style="width: 85%"></div>
+                                </div>
+                                <span class="progress-text">4.3/4.5 average</span>
+                            </div>
+                            <div class="skill-trend">
+                                <div class="trend-points">
+                                    <div class="trend-point" style="height: 60%"></div>
+                                    <div class="trend-point" style="height: 70%"></div>
+                                    <div class="trend-point" style="height: 85%"></div>
+                                    <div class="trend-point" style="height: 90%"></div>
+                                    <div class="trend-point current" style="height: 86%"></div>
+                                </div>
+                                <span class="trend-label">Last 5 feedback scores</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed Goals -->
+                <div class="completed-goals">
+                    <h3>Recently Completed 🏆</h3>
+                    
+                    <div class="goal-card completed">
+                        <div class="goal-header">
+                            <div class="goal-icon">🎖️</div>
+                            <div class="goal-info">
+                                <h4>Badge Collector</h4>
+                                <p>Earn 5 badges in first month</p>
+                            </div>
+                            <div class="completion-badge">✅</div>
+                        </div>
+                        <div class="completion-details">
+                            <span class="completion-date">Completed Feb 20</span>
+                            <span class="completion-celebration">🎉 Congratulations!</span>
+                        </div>
+                    </div>
+
+                    <div class="goal-card completed">
+                        <div class="goal-header">
+                            <div class="goal-icon">📝</div>
+                            <div class="goal-info">
+                                <h4>First 10 Games</h4>
+                                <p>Successfully log your first 10 games</p>
+                            </div>
+                            <div class="completion-badge">✅</div>
+                        </div>
+                        <div class="completion-details">
+                            <span class="completion-date">Completed Feb 15</span>
+                            <span class="completion-celebration">Great milestone!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Recommendations -->
+                <div class="goal-recommendations">
+                    <h3>Recommended Goals 💡</h3>
+                    <p class="recommendations-subtitle">Based on your current progress and level</p>
+                    
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-icon">🏆</div>
+                            <div class="recommendation-info">
+                                <h4>Season Champion</h4>
+                                <p>Complete 20 games this season (8 more to go)</p>
+                            </div>
+                            <button class="adopt-goal-btn" onclick="app.adoptGoal('season-champion')">
+                                <span>Add Goal</span>
+                            </button>
+                        </div>
+                        <div class="recommendation-reason">
+                            <span class="reason-text">You're already 60% there! This goal matches your current pace.</span>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-icon">🤝</div>
+                            <div class="recommendation-info">
+                                <h4>Mentor Magnet</h4>
+                                <p>Receive feedback from 3 different mentors</p>
+                            </div>
+                            <button class="adopt-goal-btn" onclick="app.adoptGoal('mentor-magnet')">
+                                <span>Add Goal</span>
+                            </button>
+                        </div>
+                        <div class="recommendation-reason">
+                            <span class="reason-text">Diverse feedback will accelerate your development.</span>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-icon">🧠</div>
+                            <div class="recommendation-info">
+                                <h4>Quiz Master</h4>
+                                <p>Complete 10 scenario training quizzes</p>
+                            </div>
+                            <button class="adopt-goal-btn" onclick="app.adoptGoal('quiz-master')">
+                                <span>Add Goal</span>
+                            </button>
+                        </div>
+                        <div class="recommendation-reason">
+                            <span class="reason-text">Strengthen your rule knowledge and decision-making skills.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Center Modal -->
+        <div id="notification-center-modal" class="modal">
+            <div class="modal-content notification-modal">
+                <div class="modal-header">
+                    <h3>Notification Center 🔔</h3>
+                    <span class="close" onclick="app.closeModal('notification-center-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="notification-tabs">
+                        <button class="notification-tab active" data-tab="recent">Recent</button>
+                        <button class="notification-tab" data-tab="settings">Settings</button>
+                        <button class="notification-tab" data-tab="history">History</button>
+                    </div>
+
+                    <!-- Recent Notifications -->
+                    <div id="recent-notifications" class="notification-content active">
+                        <div class="notification-list">
+                            <div class="notification-item unread important">
+                                <div class="notification-icon">🆘</div>
+                                <div class="notification-content">
+                                    <h4>Safety Alert Confirmed</h4>
+                                    <p>Your safety alert has been received. Club coordinator will contact you shortly.</p>
+                                    <span class="notification-time">2 minutes ago</span>
+                                </div>
+                                <button class="notification-action" onclick="app.markAsRead('notif-1')">Mark Read</button>
+                            </div>
+
+                            <div class="notification-item unread">
+                                <div class="notification-icon">📅</div>
+                                <div class="notification-content">
+                                    <h4>Game Reminder</h4>
+                                    <p>U15 vs Adelaide Hills starts in 30 minutes. Your checklist is 85% complete.</p>
+                                    <span class="notification-time">28 minutes ago</span>
+                                </div>
+                                <button class="notification-action" onclick="app.openChecklist('game-2')">Complete</button>
+                            </div>
+
+                            <div class="notification-item unread">
+                                <div class="notification-icon">💬</div>
+                                <div class="notification-content">
+                                    <h4>New Mentor Feedback</h4>
+                                    <p>Sarah Mitchell left feedback for your U13 game. Overall rating: 4.2/5</p>
+                                    <span class="notification-time">1 hour ago</span>
+                                </div>
+                                <button class="notification-action" onclick="app.viewFeedback('feedback-12')">View</button>
+                            </div>
+
+                            <div class="notification-item read">
+                                <div class="notification-icon">🎖️</div>
+                                <div class="notification-content">
+                                    <h4>Badge Unlocked!</h4>
+                                    <p>Congratulations! You've earned the "Confident Calls" badge for maintaining 8+ confidence.</p>
+                                    <span class="notification-time">3 hours ago</span>
+                                </div>
+                            </div>
+
+                            <div class="notification-item read">
+                                <div class="notification-icon">🎯</div>
+                                <div class="notification-content">
+                                    <h4>Goal Progress Update</h4>
+                                    <p>You're 80% complete on your "Weekly Consistency" goal. Just 1 more game this week!</p>
+                                    <span class="notification-time">1 day ago</span>
+                                </div>
+                            </div>
+
+                            <div class="notification-item read">
+                                <div class="notification-icon">📊</div>
+                                <div class="notification-content">
+                                    <h4>Weekly Summary Ready</h4>
+                                    <p>Your weekly progress report is available. You refereed 3 games with an average confidence of 8.2.</p>
+                                    <span class="notification-time">2 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div id="notification-settings" class="notification-content">
+                        <div class="settings-section">
+                            <h4>🔔 Push Notifications</h4>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                    Game Reminders (30 min before)
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                    New Mentor Feedback
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                    Badge Achievements
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                    Goal Progress Updates
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>📧 Email Notifications</h4>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                    Weekly Progress Summary
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                    Monthly Development Report
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                    Training Recommendations
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>🆘 Safety Alerts</h4>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked disabled>
+                                    <span class="checkmark"></span>
+                                    Safety Alert Confirmations (Required)
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                    Emergency Contact Notifications
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>⏰ Quiet Hours</h4>
+                            <div class="quiet-hours-settings">
+                                <div class="time-setting">
+                                    <label>Start Time:</label>
+                                    <input type="time" value="22:00">
+                                </div>
+                                <div class="time-setting">
+                                    <label>End Time:</label>
+                                    <input type="time" value="07:00">
+                                </div>
+                                <div class="setting-item">
+                                    <label class="setting-label">
+                                        <input type="checkbox" checked>
+                                        <span class="checkmark"></span>
+                                        Enable Quiet Hours
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-actions">
+                            <button class="btn btn-secondary" onclick="app.testNotification()">Send Test Notification</button>
+                            <button class="btn btn-primary" onclick="app.saveNotificationSettings()">Save Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- Notification History -->
+                    <div id="notification-history" class="notification-content">
+                        <div class="history-filters">
+                            <select id="history-filter">
+                                <option value="all">All Notifications</option>
+                                <option value="reminders">Game Reminders</option>
+                                <option value="feedback">Mentor Feedback</option>
+                                <option value="badges">Badge Achievements</option>
+                                <option value="goals">Goal Updates</option>
+                                <option value="safety">Safety Alerts</option>
+                            </select>
+                            <select id="history-period">
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+
+                        <div class="history-stats">
+                            <div class="history-stat">
+                                <span class="stat-number">47</span>
+                                <span class="stat-label">Total Notifications</span>
+                            </div>
+                            <div class="history-stat">
+                                <span class="stat-number">12</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
+                            <div class="history-stat">
+                                <span class="stat-number">2.3</span>
+                                <span class="stat-label">Daily Average</span>
+                            </div>
+                        </div>
+
+                        <div class="history-timeline">
+                            <div class="timeline-group">
+                                <h5>Today</h5>
+                                <div class="timeline-notifications">
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">15:30</span>
+                                        <span class="timeline-icon">💬</span>
+                                        <span class="timeline-text">New mentor feedback received</span>
+                                    </div>
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">09:00</span>
+                                        <span class="timeline-icon">📅</span>
+                                        <span class="timeline-text">Game reminder - U15 vs Adelaide Hills</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-group">
+                                <h5>Yesterday</h5>
+                                <div class="timeline-notifications">
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">20:15</span>
+                                        <span class="timeline-icon">🎖️</span>
+                                        <span class="timeline-text">Badge unlocked - Confident Calls</span>
+                                    </div>
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">16:45</span>
+                                        <span class="timeline-icon">📊</span>
+                                        <span class="timeline-text">Weekly progress summary generated</span>
+                                    </div>
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">14:00</span>
+                                        <span class="timeline-icon">📅</span>
+                                        <span class="timeline-text">Game reminder - U13 vs Torrens Valley</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-group">
+                                <h5>This Week</h5>
+                                <div class="timeline-notifications">
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">Mon</span>
+                                        <span class="timeline-icon">🎯</span>
+                                        <span class="timeline-text">Goal progress - Weekly Consistency 75%</span>
+                                    </div>
+                                    <div class="timeline-notification">
+                                        <span class="timeline-time">Sun</span>
+                                        <span class="timeline-icon">📧</span>
+                                        <span class="timeline-text">Weekly summary email sent</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="clear-history-btn" onclick="app.clearNotificationHistory()">
+                            Clear History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Creator Modal -->
+        <div id="goal-creator-modal" class="modal">
+            <div class="modal-content goal-modal">
+                <div class="modal-header">
+                    <h3>Create New Goal 🎯</h3>
+                    <span class="close" onclick="app.closeModal('goal-creator-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="goal-creation-form">
+                        <div class="goal-type-selection">
+                            <h4>Goal Category</h4>
+                            <div class="goal-type-options">
+                                <label class="goal-type-option">
+                                    <input type="radio" name="goalType" value="confidence">
+                                    <div class="option-card">
+                                        <span class="option-icon">💪</span>
+                                        <span class="option-label">Confidence</span>
+                                    </div>
+                                </label>
+                                <label class="goal-type-option">
+                                    <input type="radio" name="goalType" value="games">
+                                    <div class="option-card">
+                                        <span class="option-icon">📅</span>
+                                        <span class="option-label">Games</span>
+                                    </div>
+                                </label>
+                                <label class="goal-type-option">
+                                    <input type="radio" name="goalType" value="skills">
+                                    <div class="option-card">
+                                        <span class="option-icon">🎯</span>
+                                        <span class="option-label">Skills</span>
+                                    </div>
+                                </label>
+                                <label class="goal-type-option">
+                                    <input type="radio" name="goalType" value="badges">
+                                    <div class="option-card">
+                                        <span class="option-icon">🎖️</span>
+                                        <span class="option-label">Badges</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="goal-details">
+                            <div class="form-group">
+                                <label for="goal-title">Goal Title</label>
+                                <input type="text" id="goal-title" placeholder="e.g., Improve Communication Skills">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="goal-description">Description</label>
+                                <textarea id="goal-description" placeholder="Describe what you want to achieve and why it's important to you..." rows="3"></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="goal-target">Target Value</label>
+                                    <input type="number" id="goal-target" placeholder="e.g., 8.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="goal-unit">Unit</label>
+                                    <select id="goal-unit">
+                                        <option value="rating">Rating (1-10)</option>
+                                        <option value="games">Number of Games</option>
+                                        <option value="percentage">Percentage (%)</option>
+                                        <option value="badges">Badges</option>
+                                        <option value="weeks">Weeks</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="goal-deadline">Target Date</label>
+                                    <input type="date" id="goal-deadline">
+                                </div>
+                                <div class="form-group">
+                                    <label for="goal-priority">Priority</label>
+                                    <select id="goal-priority">
+                                        <option value="high">High</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="goal-reminders">
+                                    <span class="checkmark"></span>
+                                    Send me progress reminders
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" onclick="app.closeModal('goal-creator-modal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Goal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="api-service.js"></script>
+    <script src="data-manager.js"></script>
+    <script src="notification-service.js"></script>
+    <script src="qr-service.js"></script>
+    <script src="mobile-app.js"></script>
+</body>
+</html> 

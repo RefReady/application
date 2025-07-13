@@ -1,0 +1,3484 @@
+// RefReady Mobile App - Clean Implementation
+console.log('🏐 RefReady Mobile App Loading...');
+
+class RefReadyApp {
+  constructor() {
+    this.currentScreen = 'home';
+    this.userData = this.loadUserData();
+    this.gameData = this.loadGameData();
+    this.badgeData = this.loadBadgeData();
+    this.upcomingGames = this.loadUpcomingGames();
+    this.checklistData = this.loadChecklistData();
+    this.checklistTemplates = this.getChecklistTemplates();
+    this.feedbackData = this.loadFeedbackData();
+    this.trainingData = this.loadTrainingData();
+    this.scenarioQuestions = this.getScenarioQuestions();
+    this.init();
+  }
+
+  init() {
+    console.log('📱 Initializing RefReady Mobile App...');
+    this.registerServiceWorker();
+    this.setupEventListeners();
+    this.setupProfileHandlers();
+    this.setupAvatarHandler();
+    this.setupUpcomingGamesHandlers();
+    this.loadSavedAvatar();
+    this.showScreen('home');
+    this.updateConfidenceDisplay();
+    this.updateBadgeProgress();
+    this.updateUpcomingGames();
+    this.updateFeedbackDisplay();
+    this.updateFeedbackStats();
+    this.updateTrainingStats();
+    this.updateTrainingActivity();
+    this.setupGameReminders();
+    
+    // Initialize new high-priority features
+    this.initializeAnalytics();
+    this.initializeGoals();
+    this.initializeNotifications();
+    this.initializeEnhancedQR();
+    
+    console.log('✅ RefReady Mobile App Ready!');
+  }
+
+  // Service Worker Registration
+  async registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register('./sw.js');
+        console.log('SW registered: ', registration);
+      } catch (error) {
+        console.log('SW registration failed: ', error);
+      }
+    }
+  }
+
+  // Event Listeners
+  setupEventListeners() {
+    // Bottom navigation clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('nav-item') || e.target.parentElement.classList.contains('nav-item')) {
+        const navItem = e.target.classList.contains('nav-item') ? e.target : e.target.parentElement;
+        const screen = navItem.dataset.screen;
+        if (screen) {
+          console.log('📱 Navigation clicked:', screen);
+          this.showScreen(screen);
+        }
+      }
+    });
+
+    // Game form submission
+    document.addEventListener('submit', (e) => {
+      if (e.target.id === 'game-form') {
+        e.preventDefault();
+        console.log('📝 Game form submitted');
+        this.addGame();
+      }
+    });
+
+    // Date/time change listener to update form UI
+    document.addEventListener('change', (e) => {
+      if (e.target.id === 'game-date' || e.target.id === 'game-time') {
+        this.updateGameFormUI();
+      }
+    });
+
+    // Safety alert button
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'safety-alert-btn' || e.target.parentElement.id === 'safety-alert-btn') {
+        console.log('🆘 Safety alert triggered');
+        this.triggerSafetyAlert();
+      }
+    });
+
+    // QR Scanner button
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'qr-scan-btn') {
+        console.log('📷 QR scanner activated');
+        this.simulateQRScan();
+      }
+    });
+
+    // Action buttons
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('add-game-btn') || e.target.parentElement.classList.contains('add-game-btn')) {
+        console.log('📝 Add game button clicked');
+        this.showScreen('add-game');
+      }
+    });
+
+    console.log('👂 Event listeners setup complete');
+  }
+
+  // Screen Management
+  showScreen(screenName) {
+    console.log(`🔄 Switching to screen: ${screenName}`);
+    
+    // Hide all screens
+    document.querySelectorAll('.app-screen').forEach(screen => {
+      screen.classList.remove('active');
+    });
+
+    // Show selected screen
+    const screen = document.getElementById(`${screenName}-screen`);
+    if (screen) {
+      screen.classList.add('active');
+      this.currentScreen = screenName;
+      
+      // Initialize screen-specific functionality
+      if (screenName === 'add-game') {
+        setTimeout(() => this.updateGameFormUI(), 100);
+      } else if (screenName === 'analytics') {
+        setTimeout(() => this.updateAnalytics(), 100);
+      } else if (screenName === 'goals') {
+        setTimeout(() => this.renderGoals(), 100);
+      }
+    } else {
+      console.error(`❌ Screen not found: ${screenName}-screen`);
+    }
+
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Find and activate the correct nav item
+    const navItem = document.querySelector(`[data-screen="${screenName}"]`);
+    if (navItem) {
+      navItem.classList.add('active');
+    }
+  }
+
+  // User Data Management
+  loadUserData() {
+    const saved = localStorage.getItem('refready-user');
+    return saved ? JSON.parse(saved) : {
+      name: 'Emma',
+      confidence: 8,
+      gamesRefereed: 12,
+      totalBadges: 5,
+      currentLevel: 'Rising Star'
+    };
+  }
+
+  saveUserData() {
+    localStorage.setItem('refready-user', JSON.stringify(this.userData));
+  }
+
+  loadGameData() {
+    const saved = localStorage.getItem('refready-games');
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  saveGameData() {
+    localStorage.setItem('refready-games', JSON.stringify(this.gameData));
+  }
+
+  loadBadgeData() {
+    const saved = localStorage.getItem('refready-badges');
+    return saved ? JSON.parse(saved) : {
+      'first-game': { earned: true, date: '2024-01-15' },
+      'confident-calls': { earned: true, date: '2024-02-03' },
+      'feedback-champion': { earned: true, date: '2024-02-20' },
+      'safety-aware': { earned: true, date: '2024-03-01' },
+      'mentor-favorite': { earned: true, date: '2024-03-15' },
+      'season-strong': { earned: false, progress: 12, target: 20 }
+    };
+  }
+
+  saveBadgeData() {
+    localStorage.setItem('refready-badges', JSON.stringify(this.badgeData));
+  }
+
+  // Game Management
+  addGame() {
+    const form = document.getElementById('game-form');
+    if (!form) {
+      console.error('❌ Game form not found');
+      return;
+    }
+
+    const formData = new FormData(form);
+    
+    const game = {
+      id: Date.now(),
+      date: formData.get('game-date'),
+      time: formData.get('game-time'),
+      type: formData.get('game-type'),
+      venue: formData.get('venue'),
+      confidence: parseInt(formData.get('confidence')),
+      notes: formData.get('notes'),
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('📝 Logging game:', game);
+
+    // Check if this is a future game
+    const gameDateTime = new Date(`${game.date}T${game.time}`);
+    const now = new Date();
+    
+    if (gameDateTime > now) {
+      // Add to upcoming games
+      this.upcomingGames.push(game);
+      this.saveUpcomingGames();
+      this.updateUpcomingGames();
+      this.showNotification('Upcoming game scheduled! 📅', 'success');
+    } else {
+      // Add to completed games
+      this.gameData.push(game);
+      this.userData.gamesRefereed++;
+      this.userData.confidence = Math.round((this.userData.confidence + game.confidence) / 2);
+      this.saveGameData();
+      this.saveUserData();
+      this.updateConfidenceDisplay();
+      this.showNotification('Game logged successfully! 🎉', 'success');
+    }
+    
+    form.reset();
+    this.showScreen('home');
+  }
+
+  // Update form UI based on date/time selection
+  updateGameFormUI() {
+    const dateInput = document.getElementById('game-date');
+    const timeInput = document.getElementById('game-time');
+    const confidenceGroup = document.getElementById('confidence-group');
+    const submitBtn = document.getElementById('submit-game-btn');
+    const notesLabel = document.getElementById('notes-label');
+    const venueInput = document.getElementById('venue');
+
+    if (!dateInput.value || !timeInput.value) return;
+
+    const gameDateTime = new Date(`${dateInput.value}T${timeInput.value}`);
+    const now = new Date();
+    const isPastGame = gameDateTime <= now;
+
+    if (isPastGame) {
+      // Past game - show confidence slider, change labels
+      confidenceGroup.style.display = 'block';
+      confidenceGroup.querySelector('input').required = true;
+      submitBtn.textContent = 'Log Game 🎉';
+      notesLabel.textContent = 'Game Notes (optional)';
+      venueInput.placeholder = 'Where did you referee?';
+      document.querySelector('textarea[name="notes"]').placeholder = 'How did it go? Any challenges or wins?';
+    } else {
+      // Future game - hide confidence slider, change labels
+      confidenceGroup.style.display = 'none';
+      confidenceGroup.querySelector('input').required = false;
+      submitBtn.textContent = 'Schedule Game 📅';
+      notesLabel.textContent = 'Preparation Notes (optional)';
+      venueInput.placeholder = 'Where will you referee?';
+      document.querySelector('textarea[name="notes"]').placeholder = 'Any special notes or preparation reminders?';
+    }
+  }
+
+  // Badge System
+  updateBadgeProgress() {
+    const container = document.getElementById('badges-container');
+    if (!container) {
+      console.log('⚠️ Badges container not found (probably not on badges screen)');
+      return;
+    }
+
+    const badges = [
+      { id: 'first-game', name: 'First Game', icon: '🏐', description: 'Complete your first game' },
+      { id: 'confident-calls', name: 'Confident Calls', icon: '💪', description: '5 games with confidence 8+' },
+      { id: 'feedback-champion', name: 'Feedback Champion', icon: '🌟', description: 'Receive 10 mentor feedbacks' },
+      { id: 'safety-aware', name: 'Safety Aware', icon: '🛡️', description: 'Complete safety training' },
+      { id: 'mentor-favorite', name: 'Mentor Favorite', icon: '❤️', description: 'Highly rated by mentors' },
+      { id: 'season-strong', name: 'Season Strong', icon: '🏆', description: 'Complete 20 games in season' }
+    ];
+
+    container.innerHTML = badges.map(badge => {
+      const data = this.badgeData[badge.id];
+      const earned = data?.earned || false;
+      const progress = data?.progress || 0;
+      const target = data?.target || 1;
+      
+      return `
+        <div class="badge-item ${earned ? 'earned' : ''}">
+          <div class="badge-icon">${badge.icon}</div>
+          <div class="badge-info">
+            <h4>${badge.name}</h4>
+            <p>${badge.description}</p>
+            ${!earned && target > 1 ? `<div class="progress-bar">
+              <div class="progress-fill" style="width: ${(progress/target)*100}%"></div>
+              <span class="progress-text">${progress}/${target}</span>
+            </div>` : ''}
+            ${earned ? `<span class="earned-date">Earned ${new Date(data.date).toLocaleDateString()}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    console.log('🎖️ Badges updated');
+  }
+
+  // QR Scanner Simulation
+  simulateQRScan() {
+    this.showNotification('Starting QR scanner...', 'info');
+    
+    // Simulate scanning delay
+    setTimeout(() => {
+      const feedbackData = {
+        mentorName: 'Sarah Mitchell',
+        rating: 4.5,
+        comments: 'Great positioning today! Work on whistle confidence for next game.',
+        strengths: ['Good positioning', 'Clear communication', 'Fair decisions'],
+        improvements: ['Whistle confidence', 'Signal timing'],
+        date: new Date().toLocaleDateString()
+      };
+
+      this.showFeedback(feedbackData);
+    }, 1500);
+  }
+
+  showFeedback(data) {
+    const modal = document.createElement('div');
+    modal.className = 'feedback-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Mentor Feedback 💬</h3>
+          <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="mentor-info">
+            <strong>${data.mentorName}</strong>
+            <div class="rating">
+              ${'⭐'.repeat(Math.floor(data.rating))} ${data.rating}/5
+            </div>
+          </div>
+          <div class="feedback-section">
+            <h4>Comments</h4>
+            <p>${data.comments}</p>
+          </div>
+          <div class="feedback-section">
+            <h4>Strengths 💪</h4>
+            <ul>${data.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+          </div>
+          <div class="feedback-section">
+            <h4>Areas to Improve 📈</h4>
+            <ul>${data.improvements.map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  // Safety Alert System
+  triggerSafetyAlert() {
+    if (!confirm('Are you feeling unsafe? This will alert your club coordinator immediately.')) {
+      return;
+    }
+
+    // In real app, this would send actual alert
+    this.showNotification('🆘 Safety alert sent! Help is on the way.', 'emergency');
+    
+    // Simulate coordinator response
+    setTimeout(() => {
+      this.showNotification('📞 Sarah (Coordinator) is calling you now', 'info');
+    }, 3000);
+  }
+
+  // Notification System
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        ${message}
+        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+      </div>
+    `;
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 5000);
+  }
+
+  // Update displays
+  updateConfidenceDisplay() {
+    const elements = document.querySelectorAll('.confidence-level');
+    elements.forEach(el => {
+      el.textContent = `${this.userData.confidence}/10`;
+    });
+
+    const stars = document.querySelectorAll('.confidence-stars');
+    stars.forEach(el => {
+      el.innerHTML = '★'.repeat(this.userData.confidence) + '☆'.repeat(10 - this.userData.confidence);
+    });
+
+    // Update profile stats
+    this.updateProfileStats();
+
+    console.log(`⭐ Confidence updated: ${this.userData.confidence}/10`);
+  }
+
+  // Profile Management
+  updateProfileStats() {
+    const profileElements = {
+      'total-games': this.userData.gamesRefereed,
+      'avg-confidence': this.userData.confidence.toFixed(1),
+      'total-badges': this.userData.totalBadges,
+      'feedback-count': 8 // Mock data
+    };
+    
+    Object.entries(profileElements).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = value;
+      }
+    });
+
+    // Update profile name and level
+    const nameElement = document.getElementById('profile-name');
+    const levelElement = document.getElementById('profile-level');
+    
+    if (nameElement) {
+      nameElement.textContent = this.userData.name + ' Richardson';
+    }
+    
+    if (levelElement) {
+      levelElement.textContent = this.userData.currentLevel + ' Referee';
+    }
+  }
+
+  // Profile Settings Actions
+  setupProfileHandlers() {
+    // Edit profile button
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('edit-profile-btn')) {
+        console.log('✏️ Edit profile clicked');
+        this.showEditProfileModal();
+      }
+    });
+
+    // Logout button
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('logout-btn')) {
+        console.log('🚪 Logout clicked');
+        this.confirmLogout();
+      }
+    });
+
+    // Settings actions
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('setting-action')) {
+        const action = e.target.textContent.toLowerCase();
+        console.log('⚙️ Settings action:', action);
+        this.handleSettingAction(action);
+      }
+    });
+
+    // Toggle switches
+    document.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox' && e.target.closest('.toggle-switch')) {
+        console.log('🔄 Toggle changed:', e.target.checked);
+        this.handleToggleChange(e.target, e.target.checked);
+      }
+    });
+  }
+
+  confirmLogout() {
+    if (confirm('Are you sure you want to sign out?')) {
+      console.log('👋 User logged out');
+      localStorage.clear();
+      this.showNotification('Signed out successfully! 👋', 'info');
+      // In a real app, redirect to login
+      setTimeout(() => {
+        this.showNotification('Demo mode - data cleared! 🔄', 'info');
+        location.reload();
+      }, 1500);
+    }
+  }
+
+  handleSettingAction(action) {
+    switch(action) {
+      case 'manage':
+        this.showNotification('Privacy settings coming soon! 🔒', 'info');
+        break;
+      case 'export':
+        this.exportUserData();
+        break;
+      case 'help':
+        this.showNotification('Help center opening soon! ❓', 'info');
+        break;
+      default:
+        console.log('Unknown setting action:', action);
+    }
+  }
+
+  handleToggleChange(element, enabled) {
+    const setting = element.closest('.setting-item').querySelector('h4').textContent;
+    console.log(`🔄 ${setting} ${enabled ? 'enabled' : 'disabled'}`);
+    this.showNotification(`${setting} ${enabled ? 'enabled' : 'disabled'} ✅`, 'info');
+  }
+
+  exportUserData() {
+    const data = {
+      user: this.userData,
+      games: this.gameData,
+      badges: this.badgeData,
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `refready-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    this.showNotification('Data exported successfully! 📊', 'success');
+  }
+
+  // Edit Profile Modal
+  showEditProfileModal() {
+    const modal = document.createElement('div');
+    modal.className = 'edit-profile-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Profile ✏️</h3>
+          <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-profile-form">
+            <div class="form-group">
+              <label for="edit-name">Name</label>
+              <input type="text" id="edit-name" name="name" value="${this.userData.name}" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-level">Current Level</label>
+              <select id="edit-level" name="level" required>
+                <option value="Beginner" ${this.userData.currentLevel === 'Beginner' ? 'selected' : ''}>Beginner</option>
+                <option value="Rising Star" ${this.userData.currentLevel === 'Rising Star' ? 'selected' : ''}>Rising Star</option>
+                <option value="Developing" ${this.userData.currentLevel === 'Developing' ? 'selected' : ''}>Developing</option>
+                <option value="Confident" ${this.userData.currentLevel === 'Confident' ? 'selected' : ''}>Confident</option>
+                <option value="Advanced" ${this.userData.currentLevel === 'Advanced' ? 'selected' : ''}>Advanced</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="edit-club">Club/Association</label>
+              <input type="text" id="edit-club" name="club" value="Adelaide Netball Association" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-email">Email</label>
+              <input type="email" id="edit-email" name="email" value="emma.richardson@email.com" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-phone">Phone (Optional)</label>
+              <input type="tel" id="edit-phone" name="phone" value="+61 412 345 678">
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="this.closest('.edit-profile-modal').remove()">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Handle form submission
+    document.getElementById('edit-profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.saveProfileChanges(new FormData(e.target));
+      modal.remove();
+    });
+  }
+
+  saveProfileChanges(formData) {
+    const oldName = this.userData.name;
+    const oldLevel = this.userData.currentLevel;
+    
+    // Update user data
+    this.userData.name = formData.get('name');
+    this.userData.currentLevel = formData.get('level');
+    
+    // Save to localStorage
+    this.saveUserData();
+    
+    // Update UI
+    this.updateProfileStats();
+    
+    // Show success message
+    const changes = [];
+    if (oldName !== this.userData.name) changes.push('name');
+    if (oldLevel !== this.userData.currentLevel) changes.push('level');
+    
+    const changeText = changes.length > 0 ? changes.join(' and ') : 'profile';
+    this.showNotification(`Profile updated! Your ${changeText} has been saved. ✅`, 'success');
+    
+    console.log('✅ Profile changes saved:', this.userData);
+  }
+
+  // Avatar Change Handler
+  setupAvatarHandler() {
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('change-avatar-btn')) {
+        this.showAvatarSelector();
+      }
+    });
+  }
+
+  showAvatarSelector() {
+    const avatarOptions = ['👩‍⚖️', '🧑‍⚖️', '👨‍⚖️', '🏐', '⚽', '🏀', '⭐', '🎯', '💪', '🌟'];
+    
+    const modal = document.createElement('div');
+    modal.className = 'avatar-selector-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Choose Avatar 🎭</h3>
+          <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="avatar-grid">
+            ${avatarOptions.map(avatar => `
+              <button class="avatar-option" data-avatar="${avatar}">
+                <span class="avatar-preview">${avatar}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Handle avatar selection
+    modal.addEventListener('click', (e) => {
+      if (e.target.closest('.avatar-option')) {
+        const selectedAvatar = e.target.closest('.avatar-option').dataset.avatar;
+        this.changeAvatar(selectedAvatar);
+        modal.remove();
+      }
+    });
+  }
+
+  changeAvatar(newAvatar) {
+    // Update avatar in profile
+    const avatarElement = document.querySelector('.avatar-circle');
+    if (avatarElement) {
+      avatarElement.textContent = newAvatar;
+    }
+    
+    // Save preference (in a real app, this would be saved to user profile)
+    localStorage.setItem('refready-avatar', newAvatar);
+    
+    this.showNotification(`Avatar updated! ${newAvatar}`, 'success');
+  }
+
+  // Load saved avatar on app start
+  loadSavedAvatar() {
+    const savedAvatar = localStorage.getItem('refready-avatar');
+    if (savedAvatar) {
+      const avatarElement = document.querySelector('.avatar-circle');
+      if (avatarElement) {
+        avatarElement.textContent = savedAvatar;
+      }
+    }
+  }
+
+  // Upcoming Games Management
+  loadUpcomingGames() {
+    const saved = localStorage.getItem('refready-upcoming-games');
+    return saved ? JSON.parse(saved) : this.generateSampleUpcomingGames();
+  }
+
+  saveUpcomingGames() {
+    localStorage.setItem('refready-upcoming-games', JSON.stringify(this.upcomingGames));
+  }
+
+  generateSampleUpcomingGames() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    return [
+      {
+        id: 1001,
+        date: tomorrow.toISOString().split('T')[0],
+        time: '14:30',
+        type: 'netball-u15',
+        venue: 'Adelaide Netball Centre',
+        notes: 'Semi-final match'
+      },
+      {
+        id: 1002,
+        date: nextWeek.toISOString().split('T')[0],
+        time: '10:00',
+        type: 'netball-u12',
+        venue: 'Modbury Sports Centre',
+        notes: 'Regular season game'
+      }
+    ];
+  }
+
+  updateUpcomingGames() {
+    const container = document.getElementById('upcoming-games-list');
+    if (!container) return;
+
+    // Filter out past games
+    const now = new Date();
+    this.upcomingGames = this.upcomingGames.filter(game => {
+      const gameDateTime = new Date(`${game.date}T${game.time}`);
+      return gameDateTime > now;
+    });
+
+    if (this.upcomingGames.length === 0) {
+      container.innerHTML = `
+        <div class="no-games">
+          <p style="text-align: center; color: #718096; padding: 20px;">
+            No upcoming games scheduled<br>
+            <small>Add a future game using the form below</small>
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.upcomingGames.map(game => {
+      const gameDateTime = new Date(`${game.date}T${game.time}`);
+      const timeUntil = this.getTimeUntilGame(gameDateTime);
+      const checklistCompleted = this.isChecklistCompleted(game.id);
+      
+      return `
+        <div class="game-item">
+          <div class="game-header">
+            <div class="game-title">${this.formatGameType(game.type)}</div>
+            <div class="game-time">${game.time}</div>
+          </div>
+          <div class="game-details">
+            📍 ${game.venue} • ${this.formatDate(game.date)}
+            ${game.notes ? `<br><small>${game.notes}</small>` : ''}
+          </div>
+          <div class="game-actions">
+            <button class="checklist-btn ${checklistCompleted ? 'completed' : ''}" 
+                    onclick="app.showChecklist(${game.id})">
+              ${checklistCompleted ? '✅ Ready' : '📋 Checklist'}
+            </button>
+            <span class="time-until ${timeUntil.class}">${timeUntil.text}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  setupUpcomingGamesHandlers() {
+    // Event delegation is handled in main setupEventListeners
+    console.log('🎯 Upcoming games handlers setup');
+  }
+
+  getTimeUntilGame(gameDateTime) {
+    const now = new Date();
+    const diffMs = gameDateTime - now;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 30) {
+      return { text: 'Starting soon!', class: 'soon' };
+    } else if (diffMins < 60) {
+      return { text: `${diffMins} mins`, class: 'soon' };
+    } else if (diffHours < 24) {
+      return { text: `${diffHours}h ${diffMins % 60}m`, class: diffHours < 2 ? 'soon' : 'ready' };
+    } else {
+      return { text: `${diffDays} days`, class: 'ready' };
+    }
+  }
+
+  formatGameType(type) {
+    const types = {
+      'netball-u12': 'Netball U12',
+      'netball-u15': 'Netball U15',
+      'netball-u18': 'Netball U18',
+      'netball-open': 'Netball Open',
+      'other': 'Other Sport'
+    };
+    return types[type] || type;
+  }
+
+  formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return date.toLocaleDateString('en-AU', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  }
+
+  // Pre-Game Checklist System
+  loadChecklistData() {
+    const saved = localStorage.getItem('refready-checklist-data');
+    return saved ? JSON.parse(saved) : {};
+  }
+
+  saveChecklistData() {
+    localStorage.setItem('refready-checklist-data', JSON.stringify(this.checklistData));
+  }
+
+  getChecklistTemplates() {
+    return {
+      mental: {
+        title: 'Mental Preparation',
+        icon: '🧠',
+        items: [
+          'Reviewed game rules and recent updates',
+          'Visualized key scenarios and responses',
+          'Set confidence and performance goals',
+          'Practiced calm breathing techniques',
+          'Reviewed player names and team info'
+        ]
+      },
+      physical: {
+        title: 'Physical Preparation',
+        icon: '💪',
+        items: [
+          'Completed warm-up and stretching',
+          'Checked uniform is clean and proper',
+          'Ensured whistle is working properly',
+          'Packed water bottle and snacks',
+          'Confirmed comfortable footwear'
+        ]
+      },
+      equipment: {
+        title: 'Equipment Check',
+        icon: '⚽',
+        items: [
+          'Whistle and backup whistle ready',
+          'Score cards and pen available',
+          'Phone charged for emergency contact',
+          'First aid kit accessible',
+          'Weather-appropriate gear packed'
+        ]
+      },
+      logistics: {
+        title: 'Game Logistics',
+        icon: '📋',
+        items: [
+          'Confirmed game time and venue',
+          'Planned route and travel time',
+          'Contacted mentor if available',
+          'Reviewed team sheets (if provided)',
+          'Arranged post-game feedback session'
+        ]
+      }
+    };
+  }
+
+  showChecklist(gameId) {
+    const game = this.upcomingGames.find(g => g.id === gameId);
+    if (!game) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'checklist-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Pre-Game Checklist 📋</h3>
+          <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="game-info-card">
+            <h4>${this.formatGameType(game.type)}</h4>
+            <p>📍 ${game.venue} • ${this.formatDate(game.date)} at ${game.time}</p>
+          </div>
+          
+          <div class="checklist-progress">
+            <div class="progress-header">
+              <h4 class="progress-title">Preparation Progress</h4>
+              <span class="progress-percentage" id="progress-percentage-${gameId}">0%</span>
+            </div>
+            <div class="checklist-progress-bar">
+              <div class="checklist-progress-fill" id="progress-fill-${gameId}" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="checklist-categories">
+            ${Object.entries(this.checklistTemplates).map(([key, category]) => `
+              <div class="checklist-category">
+                <div class="category-header">
+                  <span class="category-icon">${category.icon}</span>
+                  <h4 class="category-title">${category.title}</h4>
+                </div>
+                <div class="checklist-items">
+                  ${category.items.map((item, index) => {
+                    const itemId = `${gameId}-${key}-${index}`;
+                    const checked = this.isChecklistItemCompleted(gameId, key, index);
+                    return `
+                      <div class="checklist-item ${checked ? 'completed' : ''}" data-game="${gameId}" data-category="${key}" data-index="${index}">
+                        <div class="checklist-checkbox ${checked ? 'checked' : ''}" onclick="app.toggleChecklistItem(${gameId}, '${key}', ${index})">
+                          ${checked ? '✓' : ''}
+                        </div>
+                        <span class="checklist-text">${item}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.checklist-modal').remove()">Save & Close</button>
+            <button type="button" class="btn ready-btn" id="ready-btn-${gameId}" 
+                    onclick="app.markGameReady(${gameId})" ${this.isChecklistCompleted(gameId) ? '' : 'disabled'}>
+              I'm Ready! 🎉
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    this.updateChecklistProgress(gameId);
+  }
+
+  toggleChecklistItem(gameId, category, index) {
+    if (!this.checklistData[gameId]) {
+      this.checklistData[gameId] = {};
+    }
+    if (!this.checklistData[gameId][category]) {
+      this.checklistData[gameId][category] = {};
+    }
+
+    const isChecked = this.checklistData[gameId][category][index];
+    this.checklistData[gameId][category][index] = !isChecked;
+    
+    this.saveChecklistData();
+    this.updateChecklistUI(gameId, category, index);
+    this.updateChecklistProgress(gameId);
+    this.updateUpcomingGames();
+  }
+
+  updateChecklistUI(gameId, category, index) {
+    const item = document.querySelector(`[data-game="${gameId}"][data-category="${category}"][data-index="${index}"]`);
+    const checkbox = item.querySelector('.checklist-checkbox');
+    const isChecked = this.checklistData[gameId][category][index];
+
+    if (isChecked) {
+      item.classList.add('completed');
+      checkbox.classList.add('checked');
+      checkbox.textContent = '✓';
+    } else {
+      item.classList.remove('completed');
+      checkbox.classList.remove('checked');
+      checkbox.textContent = '';
+    }
+  }
+
+  updateChecklistProgress(gameId) {
+    const totalItems = Object.values(this.checklistTemplates).reduce((sum, cat) => sum + cat.items.length, 0);
+    const completedItems = this.getCompletedItemsCount(gameId);
+    const percentage = Math.round((completedItems / totalItems) * 100);
+
+    const percentageEl = document.getElementById(`progress-percentage-${gameId}`);
+    const fillEl = document.getElementById(`progress-fill-${gameId}`);
+    const readyBtn = document.getElementById(`ready-btn-${gameId}`);
+
+    if (percentageEl) percentageEl.textContent = `${percentage}%`;
+    if (fillEl) fillEl.style.width = `${percentage}%`;
+    if (readyBtn) readyBtn.disabled = percentage < 100;
+  }
+
+  getCompletedItemsCount(gameId) {
+    if (!this.checklistData[gameId]) return 0;
+    
+    let count = 0;
+    Object.values(this.checklistData[gameId]).forEach(category => {
+      Object.values(category).forEach(completed => {
+        if (completed) count++;
+      });
+    });
+    return count;
+  }
+
+  isChecklistItemCompleted(gameId, category, index) {
+    return this.checklistData[gameId] && 
+           this.checklistData[gameId][category] && 
+           this.checklistData[gameId][category][index];
+  }
+
+  isChecklistCompleted(gameId) {
+    const totalItems = Object.values(this.checklistTemplates).reduce((sum, cat) => sum + cat.items.length, 0);
+    const completedItems = this.getCompletedItemsCount(gameId);
+    return completedItems === totalItems;
+  }
+
+  markGameReady(gameId) {
+    this.showNotification('You\'re all set for the game! Good luck! 🌟', 'success');
+    document.querySelector('.checklist-modal').remove();
+    this.updateUpcomingGames();
+  }
+
+  // Game Reminders System
+  setupGameReminders() {
+    // Check for upcoming games every minute
+    setInterval(() => {
+      this.checkGameReminders();
+    }, 60000);
+    
+    // Initial check
+    this.checkGameReminders();
+  }
+
+  checkGameReminders() {
+    const now = new Date();
+    
+    this.upcomingGames.forEach(game => {
+      const gameDateTime = new Date(`${game.date}T${game.time}`);
+      const diffMs = gameDateTime - now;
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      
+      // Show reminder 30 minutes before game
+      if (diffMins === 30 && !this.hasShownReminder(game.id)) {
+        this.showGameReminder(game);
+        this.markReminderShown(game.id);
+      }
+    });
+  }
+
+  showGameReminder(game) {
+    const modal = document.createElement('div');
+    modal.className = 'checklist-notification';
+    modal.innerHTML = `
+      <div class="notification-icon">⏰</div>
+      <h3 class="notification-title">Game Starting Soon!</h3>
+      <p class="notification-message">
+        Your ${this.formatGameType(game.type)} game at ${game.venue} starts in 30 minutes.<br>
+        <strong>Game time: ${game.time}</strong>
+      </p>
+      <div class="notification-actions">
+        <button class="btn notification-btn btn-secondary" onclick="this.parentElement.parentElement.remove()">
+          Got it!
+        </button>
+        <button class="btn notification-btn btn-primary" onclick="app.showChecklist(${game.id}); this.parentElement.parentElement.remove();">
+          Pre-Game Checklist
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    
+    // Auto-remove after 10 seconds if not interacted with
+    setTimeout(() => {
+      if (document.body.contains(modal)) {
+        modal.remove();
+      }
+    }, 10000);
+  }
+
+  hasShownReminder(gameId) {
+    const reminders = JSON.parse(localStorage.getItem('refready-reminders-shown') || '[]');
+    return reminders.includes(gameId);
+  }
+
+  markReminderShown(gameId) {
+    const reminders = JSON.parse(localStorage.getItem('refready-reminders-shown') || '[]');
+    reminders.push(gameId);
+    localStorage.setItem('refready-reminders-shown', JSON.stringify(reminders));
+  }
+
+  // ====== MENTOR FEEDBACK SYSTEM ======
+
+  // Load feedback data
+  loadFeedbackData() {
+    const saved = localStorage.getItem('refready-feedback');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        mentorName: 'Sarah Mitchell',
+        mentorRole: 'senior-mentor',
+        date: '2024-01-28',
+        gameDetails: 'U15 Netball, Court 2',
+        ratings: {
+          positioning: 4,
+          communication: 5,
+          whistle: 4,
+          confidence: 4,
+          rules: 5
+        },
+        feedback: {
+          strengths: 'Excellent communication with players and clear signals. Great positioning throughout the game.',
+          improvements: 'Work on whistle timing - sometimes a bit quick on the call. Take a moment to assess.',
+          encouragement: 'You\'re doing fantastic! Your confidence is really showing on court. Keep it up!'
+        },
+        badgeRecommendations: ['communication'],
+        timestamp: '2024-01-28T15:30:00'
+      },
+      {
+        id: 2,
+        mentorName: 'David Chen',
+        mentorRole: 'club-mentor',
+        date: '2024-01-21',
+        gameDetails: 'U13 Netball, Court 1',
+        ratings: {
+          positioning: 4,
+          communication: 4,
+          whistle: 5,
+          confidence: 3,
+          rules: 4
+        },
+        feedback: {
+          strengths: 'Great whistle control and clear voice. Rules knowledge is solid.',
+          improvements: 'Be more confident in your calls - you know the rules, trust yourself!',
+          encouragement: 'Every game you ref makes you better. You\'re on the right track!'
+        },
+        badgeRecommendations: [],
+        timestamp: '2024-01-21T14:15:00'
+      }
+    ];
+  }
+
+  // Save feedback data
+  saveFeedbackData() {
+    localStorage.setItem('refready-feedback', JSON.stringify(this.feedbackData));
+  }
+
+  // Show QR Code Modal
+  showQRCode() {
+    console.log('📱 Showing QR code for mentor feedback');
+    
+    // Generate unique QR code ID
+    const qrCodeId = `REF-${Date.now()}`;
+    const gameInfo = this.getNextGameInfo();
+    
+    // Update QR modal content
+    document.getElementById('qr-code-id').textContent = qrCodeId;
+    document.getElementById('qr-game-info').textContent = gameInfo;
+    document.getElementById('qr-referee-name').textContent = this.userData.name || 'Referee';
+    
+    this.showModal('qr-modal');
+  }
+
+  // Get next game info for QR code
+  getNextGameInfo() {
+    if (this.upcomingGames && this.upcomingGames.length > 0) {
+      const nextGame = this.upcomingGames[0];
+      return `${nextGame.type} - ${this.formatDate(nextGame.date)} ${nextGame.time}`;
+    }
+    return 'Next scheduled game';
+  }
+
+  // Generate new QR code
+  generateNewQR() {
+    const newQrCodeId = `REF-${Date.now()}`;
+    document.getElementById('qr-code-id').textContent = newQrCodeId;
+    this.showNotification('New QR code generated! 📱', 'success');
+  }
+
+  // Show mentor feedback form
+  showMentorForm() {
+    console.log('🎓 Opening mentor feedback form');
+    this.showModal('mentor-modal');
+    this.setupStarRatings();
+    
+    // Set today's date by default
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('game-date').value = today;
+  }
+
+  // Setup interactive star ratings
+  setupStarRatings() {
+    document.querySelectorAll('.star-rating').forEach(rating => {
+      const stars = rating.querySelectorAll('.star');
+      
+      stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+          this.setStarRating(rating, index + 1);
+        });
+        
+        star.addEventListener('mouseenter', () => {
+          this.highlightStars(rating, index + 1);
+        });
+      });
+      
+      rating.addEventListener('mouseleave', () => {
+        this.resetStarHighlight(rating);
+      });
+    });
+  }
+
+  // Set star rating value
+  setStarRating(ratingElement, value) {
+    const stars = ratingElement.querySelectorAll('.star');
+    ratingElement.dataset.value = value;
+    
+    stars.forEach((star, index) => {
+      if (index < value) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  // Highlight stars on hover
+  highlightStars(ratingElement, value) {
+    const stars = ratingElement.querySelectorAll('.star');
+    stars.forEach((star, index) => {
+      if (index < value) {
+        star.style.color = '#FFD700';
+      } else {
+        star.style.color = '#DDD';
+      }
+    });
+  }
+
+  // Reset star highlight
+  resetStarHighlight(ratingElement) {
+    const currentValue = parseInt(ratingElement.dataset.value) || 0;
+    this.setStarRating(ratingElement, currentValue);
+  }
+
+  // Submit mentor feedback
+  submitMentorFeedback() {
+    console.log('📝 Submitting mentor feedback');
+    
+    const form = document.getElementById('mentor-feedback-form');
+    const formData = new FormData(form);
+    
+    // Get star ratings
+    const ratings = {};
+    document.querySelectorAll('.star-rating').forEach(rating => {
+      const ratingType = rating.dataset.rating;
+      const value = parseInt(rating.dataset.value) || 0;
+      ratings[ratingType] = value;
+    });
+    
+    // Get badge recommendations
+    const badgeRecommendations = [];
+    document.querySelectorAll('input[name="badge-ready"]:checked').forEach(checkbox => {
+      badgeRecommendations.push(checkbox.value);
+    });
+    
+    // Create feedback object
+    const feedback = {
+      id: Date.now(),
+      mentorName: formData.get('mentor-name'),
+      mentorRole: formData.get('mentor-role'),
+      date: formData.get('game-date'),
+      gameDetails: formData.get('game-details'),
+      ratings: ratings,
+      feedback: {
+        strengths: formData.get('strengths'),
+        improvements: formData.get('improvements'),
+        encouragement: formData.get('encouragement')
+      },
+      badgeRecommendations: badgeRecommendations,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Initialize feedback data if needed
+    if (!this.feedbackData) {
+      this.feedbackData = this.loadFeedbackData();
+    }
+    
+    // Add new feedback
+    this.feedbackData.unshift(feedback);
+    this.saveFeedbackData();
+    
+    // Update displays
+    this.updateFeedbackDisplay();
+    this.updateFeedbackStats();
+    
+    // Close modal and show success
+    this.closeModal('mentor-modal');
+    this.showNotification('Feedback submitted successfully! 🎉', 'success');
+    
+    // Reset form
+    form.reset();
+    document.querySelectorAll('.star-rating').forEach(rating => {
+      rating.dataset.value = '0';
+      this.setStarRating(rating, 0);
+    });
+    
+    // Check for badge unlocks
+    this.checkBadgeUnlocks(feedback);
+  }
+
+  // Update feedback display
+  updateFeedbackDisplay() {
+    if (!this.feedbackData) {
+      this.feedbackData = this.loadFeedbackData();
+    }
+    
+    const feedbackList = document.getElementById('feedback-list');
+    if (!feedbackList) return;
+    
+    if (this.feedbackData.length === 0) {
+      feedbackList.innerHTML = `
+        <div class="no-feedback">
+          <p>No feedback received yet. Show your QR code to a mentor after your next game!</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Show recent feedback (last 3)
+    const recentFeedback = this.feedbackData.slice(0, 3);
+    feedbackList.innerHTML = recentFeedback.map(feedback => `
+      <div class="feedback-item" onclick="app.showFeedbackDetail(${feedback.id})">
+        <div class="feedback-header">
+          <span class="mentor-name">${feedback.mentorName}</span>
+          <span class="feedback-date">${this.getTimeAgo(feedback.timestamp)}</span>
+        </div>
+        <div class="feedback-rating">
+          ${this.generateStars(this.calculateAverageRating(feedback.ratings))} ${this.calculateAverageRating(feedback.ratings).toFixed(1)}/5
+        </div>
+        <p class="feedback-preview">${feedback.feedback.encouragement || feedback.feedback.strengths}</p>
+      </div>
+    `).join('');
+  }
+
+  // Update feedback statistics
+  updateFeedbackStats() {
+    if (!this.feedbackData) {
+      this.feedbackData = this.loadFeedbackData();
+    }
+    
+    const totalCount = this.feedbackData.length;
+    const avgRating = this.feedbackData.length > 0 
+      ? this.feedbackData.reduce((sum, feedback) => sum + this.calculateAverageRating(feedback.ratings), 0) / this.feedbackData.length
+      : 0;
+    
+    // Calculate improvement (dummy calculation for demo)
+    const improvement = this.feedbackData.length >= 2 
+      ? Math.round(((this.calculateAverageRating(this.feedbackData[0].ratings) - this.calculateAverageRating(this.feedbackData[this.feedbackData.length - 1].ratings)) / this.calculateAverageRating(this.feedbackData[this.feedbackData.length - 1].ratings)) * 100)
+      : 15;
+    
+    // Update stat cards
+    const totalFeedbackEl = document.getElementById('total-feedback-count');
+    const avgRatingEl = document.getElementById('avg-rating');
+    const improvementEl = document.getElementById('improvement-score');
+    
+    if (totalFeedbackEl) totalFeedbackEl.textContent = totalCount;
+    if (avgRatingEl) avgRatingEl.textContent = avgRating.toFixed(1);
+    if (improvementEl) improvementEl.textContent = improvement > 0 ? `+${improvement}%` : `${improvement}%`;
+  }
+
+  // Calculate average rating from ratings object
+  calculateAverageRating(ratings) {
+    const values = Object.values(ratings);
+    return values.length > 0 ? values.reduce((sum, val) => sum + val, 0) / values.length : 0;
+  }
+
+  // Generate star display
+  generateStars(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    let stars = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars += '⭐';
+    }
+    if (halfStar) {
+      stars += '⭐';
+    }
+    
+    return stars;
+  }
+
+  // Get time ago string
+  getTimeAgo(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return date.toLocaleDateString();
+  }
+
+  // Show detailed feedback view
+  showFeedbackDetail(feedbackId) {
+    const feedback = this.feedbackData.find(f => f.id === feedbackId);
+    if (!feedback) return;
+    
+    const detailContent = document.getElementById('feedback-detail-content');
+    detailContent.innerHTML = `
+      <div class="detail-section">
+        <h4>Game Information</h4>
+        <p><strong>Game:</strong> ${feedback.gameDetails}</p>
+        <p><strong>Date:</strong> ${this.formatDate(feedback.date)}</p>
+        <p><strong>Mentor:</strong> ${feedback.mentorName} (${this.formatMentorRole(feedback.mentorRole)})</p>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Performance Ratings</h4>
+        <div class="rating-display">
+          <div class="rating-item">
+            <span class="rating-label">Positioning</span>
+            <span class="rating-stars">${this.generateStars(feedback.ratings.positioning)}</span>
+          </div>
+          <div class="rating-item">
+            <span class="rating-label">Communication</span>
+            <span class="rating-stars">${this.generateStars(feedback.ratings.communication)}</span>
+          </div>
+          <div class="rating-item">
+            <span class="rating-label">Whistle Use</span>
+            <span class="rating-stars">${this.generateStars(feedback.ratings.whistle)}</span>
+          </div>
+          <div class="rating-item">
+            <span class="rating-label">Confidence</span>
+            <span class="rating-stars">${this.generateStars(feedback.ratings.confidence)}</span>
+          </div>
+          <div class="rating-item">
+            <span class="rating-label">Rule Knowledge</span>
+            <span class="rating-stars">${this.generateStars(feedback.ratings.rules)}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Written Feedback</h4>
+        ${feedback.feedback.strengths ? `
+          <div class="feedback-text">
+            <strong>Key Strengths:</strong><br>
+            ${feedback.feedback.strengths}
+          </div>
+        ` : ''}
+        ${feedback.feedback.improvements ? `
+          <div class="feedback-text">
+            <strong>Areas for Growth:</strong><br>
+            ${feedback.feedback.improvements}
+          </div>
+        ` : ''}
+        ${feedback.feedback.encouragement ? `
+          <div class="feedback-text">
+            <strong>Encouragement:</strong><br>
+            ${feedback.feedback.encouragement}
+          </div>
+        ` : ''}
+        <div class="mentor-signature">
+          - ${feedback.mentorName}
+        </div>
+      </div>
+      
+      ${feedback.badgeRecommendations.length > 0 ? `
+        <div class="detail-section">
+          <h4>Badge Recommendations</h4>
+          <p>Your mentor thinks you're ready for these badges:</p>
+          <ul>
+            ${feedback.badgeRecommendations.map(badge => `
+              <li>${this.formatBadgeName(badge)} Badge</li>
+            `).join('')}
+          </ul>
+        </div>
+      ` : ''}
+    `;
+    
+    this.showModal('feedback-detail-modal');
+  }
+
+  // Format mentor role for display
+  formatMentorRole(role) {
+    const roleMap = {
+      'senior-mentor': 'Senior Mentor',
+      'club-mentor': 'Club Mentor',
+      'experienced-referee': 'Experienced Referee',
+      'coach': 'Coach/Coordinator'
+    };
+    return roleMap[role] || role;
+  }
+
+  // Format badge name for display
+  formatBadgeName(badgeName) {
+    return badgeName.charAt(0).toUpperCase() + badgeName.slice(1);
+  }
+
+  // Show all feedback
+  showAllFeedback() {
+    console.log('📋 Showing all feedback');
+    const feedbackList = document.getElementById('feedback-list');
+    if (!feedbackList || !this.feedbackData) return;
+    
+    feedbackList.innerHTML = this.feedbackData.map(feedback => `
+      <div class="feedback-item" onclick="app.showFeedbackDetail(${feedback.id})">
+        <div class="feedback-header">
+          <span class="mentor-name">${feedback.mentorName}</span>
+          <span class="feedback-date">${this.getTimeAgo(feedback.timestamp)}</span>
+        </div>
+        <div class="feedback-rating">
+          ${this.generateStars(this.calculateAverageRating(feedback.ratings))} ${this.calculateAverageRating(feedback.ratings).toFixed(1)}/5
+        </div>
+        <p class="feedback-preview">${feedback.feedback.encouragement || feedback.feedback.strengths}</p>
+      </div>
+    `).join('');
+    
+    // Hide the "View All" button
+    const viewAllBtn = document.querySelector('.view-all-btn');
+    if (viewAllBtn) viewAllBtn.style.display = 'none';
+  }
+
+  // Check for badge unlocks based on feedback
+  checkBadgeUnlocks(feedback) {
+    // Communication badge - if rated 4+ in communication
+    if (feedback.ratings.communication >= 4 && !this.badgeData['communication-pro']) {
+      this.unlockBadge('communication-pro', 'Communication Pro');
+    }
+    
+    // Positioning badge - if rated 4+ in positioning
+    if (feedback.ratings.positioning >= 4 && !this.badgeData['positioning-champ']) {
+      this.unlockBadge('positioning-champ', 'Positioning Champion');
+    }
+    
+    // Feedback seeker badge - after receiving 3+ feedback
+    if (this.feedbackData.length >= 3 && !this.badgeData['feedback-seeker']) {
+      this.unlockBadge('feedback-seeker', 'Feedback Seeker');
+    }
+  }
+
+  // Unlock a badge
+  unlockBadge(badgeId, badgeName) {
+    this.badgeData[badgeId] = {
+      earned: true,
+      date: new Date().toISOString().split('T')[0]
+    };
+    this.saveBadgeData();
+    this.showNotification(`🎖️ Badge Unlocked: ${badgeName}!`, 'success');
+    this.updateBadgeProgress();
+  }
+
+  // Modal management
+  showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    }
+  }
+
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
+  }
+
+  // ====== SCENARIO TRAINING SYSTEM ======
+
+  // Load training data
+  loadTrainingData() {
+    const saved = localStorage.getItem('refready-training');
+    return saved ? JSON.parse(saved) : {
+      quizzesCompleted: 12,
+      averageScore: 87,
+      currentStreak: 5,
+      history: [
+        {
+          id: 1,
+          difficulty: 'intermediate',
+          score: 4,
+          total: 5,
+          date: '2024-01-28',
+          timestamp: '2024-01-28T16:30:00'
+        },
+        {
+          id: 2,
+          difficulty: 'beginner',
+          score: 5,
+          total: 5,
+          date: '2024-01-26',
+          timestamp: '2024-01-26T14:15:00'
+        }
+      ]
+    };
+  }
+
+  // Save training data
+  saveTrainingData() {
+    localStorage.setItem('refready-training', JSON.stringify(this.trainingData));
+  }
+
+  // Get scenario questions bank
+  getScenarioQuestions() {
+    return {
+      beginner: [
+        {
+          id: 1,
+          situation: "During a Center Pass, the GA (Goal Attack) steps into the center circle before the whistle is blown and touches the ball.",
+          question: "What is the correct call?",
+          options: [
+            "Play on - no infringement",
+            "Throw in to the opposing team from where the GA touched the ball",
+            "Replay the center pass",
+            "Free pass to the opposing team from where the GA was standing"
+          ],
+          correct: 1,
+          explanation: "This is an offside infringement. The GA entered an area where they're not allowed before the ball was in play. The penalty is a throw in to the opposing team from where the infringement occurred.",
+          category: "Offside & Positioning"
+        },
+        {
+          id: 2,
+          situation: "A shooter takes a shot at goal and the ball hits the post and bounces back into play. Another player from the same team catches the ball and immediately shoots again.",
+          question: "Is this allowed?",
+          options: [
+            "Yes, this is legal play",
+            "No, this is a replay - the ball must be touched by another player first",
+            "No, only the original shooter can attempt the next shot",
+            "Yes, but only if 3 seconds have passed"
+          ],
+          correct: 0,
+          explanation: "This is completely legal. Once the ball hits the post, it's back in open play and any eligible player can catch and shoot. The replay rule only applies when the ball goes through the ring.",
+          category: "Shooting Rules"
+        },
+        {
+          id: 3,
+          situation: "A player catches the ball with both feet on the ground, then lifts one foot and puts it down in a different position.",
+          question: "What should you call?",
+          options: [
+            "Play on - this is legal footwork",
+            "Stepping - free pass to opposing team",
+            "Replay the ball",
+            "Advantage to the defending team"
+          ],
+          correct: 1,
+          explanation: "This is stepping (footwork infringement). Once a player catches the ball with both feet down, they can only pivot on one foot. Both feet cannot be moved to new positions.",
+          category: "Footwork"
+        },
+        {
+          id: 4,
+          situation: "Two players from opposing teams both grab the ball at exactly the same time. After holding it for 2 seconds, one player lets go.",
+          question: "What is your call?",
+          options: [
+            "Possession to the player still holding the ball",
+            "Simultaneous catch - toss up between the two players",
+            "Free pass to the team whose player let go first",
+            "Restart play with a throw in"
+          ],
+          correct: 1,
+          explanation: "This is a simultaneous catch situation. When two players catch/contact the ball at exactly the same time, it results in a toss up between those two players.",
+          category: "Simultaneous Catch"
+        },
+        {
+          id: 5,
+          situation: "A player is holding the ball and an opponent leans over them, making contact with the player's arms while trying to defend.",
+          question: "What should you call?",
+          options: [
+            "Contact against the defender - free pass",
+            "Play on - minimal contact allowed",
+            "Held ball - the defender was over for 3 seconds",
+            "Simultaneous infringement - replay"
+          ],
+          correct: 0,
+          explanation: "This is contact by the defender. Players cannot make contact with an opponent's arms or body while defending. The penalty is a free pass to the player with the ball.",
+          category: "Contact & Defending"
+        }
+      ],
+      intermediate: [
+        {
+          id: 6,
+          situation: "A WD (Wing Defence) intercepts a ball in the center third, then immediately runs into the goal third with the ball to make a defensive play.",
+          question: "What is the correct call?",
+          options: [
+            "Play on - WD can enter goal third when defending",
+            "Offside - WD cannot enter the goal third at any time",
+            "Obstruction - WD is too close to the goal shooter",
+            "Free pass for leaving the playing area"
+          ],
+          correct: 1,
+          explanation: "This is offside. Wing Defence (WD) is restricted to the center third and their defensive goal third only. They cannot enter the opposing team's goal third under any circumstances.",
+          category: "Court Positioning"
+        },
+        {
+          id: 7,
+          situation: "A player attempts to throw the ball but it slips from their hands and hits their own foot before going out of bounds.",
+          question: "What should you call?",
+          options: [
+            "Throw in to opposing team from where ball went out",
+            "Short pass - ball didn't travel far enough",
+            "Replay - accidental contact with foot",
+            "Free pass for ball touching foot"
+          ],
+          correct: 0,
+          explanation: "The ball went out of bounds, regardless of how it happened. The penalty is a throw in to the opposing team from where the ball crossed the boundary line. Accidental foot contact doesn't change this ruling.",
+          category: "Out of Bounds"
+        },
+        {
+          id: 8,
+          situation: "During play, a GS (Goal Shooter) catches the ball just outside the goal circle, then steps into the circle and attempts a shot.",
+          question: "Is this legal?",
+          options: [
+            "Yes, GS can shoot once inside the circle",
+            "No, the ball must be caught inside the circle to shoot",
+            "Yes, but only if no defender is within 0.9m",
+            "No, this is considered offside"
+          ],
+          correct: 0,
+          explanation: "This is legal. Goal shooters can catch the ball outside the circle and then move into the circle to shoot, as long as they maintain legal footwork and follow other rules.",
+          category: "Shooting Rules"
+        }
+      ],
+      advanced: [
+        {
+          id: 9,
+          situation: "A player takes a penalty shot and the ball rebounds off the post. The shooter catches the rebound and immediately shoots again, but the ball misses completely and goes out of bounds.",
+          question: "What happens next?",
+          options: [
+            "Throw in to opposing team from where ball went out",
+            "Another penalty shot for the original infringement",
+            "Free pass to opposing team from edge of circle",
+            "Replay the penalty shot"
+          ],
+          correct: 0,
+          explanation: "Once a penalty shot is taken, play continues normally. The rebound catch and second shot were legal, but since the ball went out of bounds, it's a throw in to the opposing team from where it crossed the line.",
+          category: "Penalty Shots"
+        },
+        {
+          id: 10,
+          situation: "During a center pass, the ball is thrown high and two players jump for it. Both players land simultaneously, each with one hand on the ball, but one player's foot lands on the center circle line.",
+          question: "What is your call?",
+          options: [
+            "Simultaneous catch - toss up between the players",
+            "Offside - player cannot land on center circle line",
+            "Free pass to team whose player didn't land on line",
+            "Replay center pass"
+          ],
+          correct: 0,
+          explanation: "The center circle line is considered part of the center third, so landing on it is not offside. Since both players caught the ball simultaneously, it's a toss up situation regardless of where they landed.",
+          category: "Advanced Positioning"
+        }
+      ]
+    };
+  }
+
+  // Start scenario quiz
+  startScenarioQuiz(difficulty = 'beginner') {
+    console.log(`🧠 Starting ${difficulty} scenario quiz`);
+    
+    this.currentQuiz = {
+      difficulty: difficulty,
+      questions: this.getRandomQuestions(difficulty, 5),
+      currentQuestion: 0,
+      score: 0,
+      answers: [],
+      startTime: Date.now()
+    };
+    
+    document.getElementById('quiz-title').textContent = `${this.capitalizeFirst(difficulty)} Training`;
+    this.showModal('scenario-quiz-modal');
+    this.displayQuestion();
+  }
+
+  // Start random scenario
+  startRandomScenario() {
+    const difficulties = ['beginner', 'intermediate', 'advanced'];
+    const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+    this.startScenarioQuiz(randomDifficulty);
+  }
+
+  // Get random questions for quiz
+  getRandomQuestions(difficulty, count = 5) {
+    const allQuestions = this.scenarioQuestions[difficulty];
+    const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  // Display current question
+  displayQuestion() {
+    const quiz = this.currentQuiz;
+    const question = quiz.questions[quiz.currentQuestion];
+    
+    // Update progress
+    document.getElementById('question-counter').textContent = 
+      `Question ${quiz.currentQuestion + 1} of ${quiz.questions.length}`;
+    
+    const progressPercent = ((quiz.currentQuestion + 1) / quiz.questions.length) * 100;
+    document.getElementById('quiz-progress-fill').style.width = `${progressPercent}%`;
+    
+    // Display question content
+    document.getElementById('quiz-content').innerHTML = `
+      <div class="scenario-content">
+        <div class="scenario-situation">
+          <h4>🏐 Game Situation</h4>
+          <p class="scenario-text">${question.situation}</p>
+        </div>
+        
+        <div class="scenario-question">
+          <h4>What should you call?</h4>
+          <div class="quiz-options">
+            ${question.options.map((option, index) => `
+              <button class="quiz-option" onclick="app.selectAnswer(${index})">
+                ${option}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Update footer
+    document.getElementById('quiz-footer').innerHTML = `
+      <div class="quiz-info">
+        <span>Category: ${question.category}</span>
+      </div>
+      <div class="quiz-nav">
+        <button class="btn quiz-nav-btn btn-secondary" onclick="app.closeModal('scenario-quiz-modal')">
+          Exit Quiz
+        </button>
+      </div>
+    `;
+  }
+
+  // Select answer
+  selectAnswer(answerIndex) {
+    const quiz = this.currentQuiz;
+    const question = quiz.questions[quiz.currentQuestion];
+    const options = document.querySelectorAll('.quiz-option');
+    
+    // Disable all options
+    options.forEach(option => option.classList.add('disabled'));
+    
+    // Mark selected answer
+    options[answerIndex].classList.add('selected');
+    
+    // Show correct/incorrect
+    const isCorrect = answerIndex === question.correct;
+    if (isCorrect) {
+      options[answerIndex].classList.add('correct');
+      quiz.score++;
+    } else {
+      options[answerIndex].classList.add('incorrect');
+      options[question.correct].classList.add('correct');
+    }
+    
+    // Store answer
+    quiz.answers.push({
+      questionId: question.id,
+      selected: answerIndex,
+      correct: question.correct,
+      isCorrect: isCorrect
+    });
+    
+    // Show explanation
+    this.showExplanation(question, isCorrect);
+    
+    // Update footer with next button
+    setTimeout(() => {
+      document.getElementById('quiz-footer').innerHTML = `
+        <div class="quiz-score">
+          Score: ${quiz.score}/${quiz.currentQuestion + 1}
+        </div>
+        <button class="btn quiz-nav-btn btn-primary" onclick="app.nextQuestion()">
+          ${quiz.currentQuestion + 1 < quiz.questions.length ? 'Next Question' : 'Finish Quiz'}
+        </button>
+      `;
+    }, 1500);
+  }
+
+  // Show explanation
+  showExplanation(question, isCorrect) {
+    const explanationHtml = `
+      <div class="explanation-section">
+        <h4>${isCorrect ? '✅' : '❌'} ${isCorrect ? 'Correct!' : 'Not quite right'}</h4>
+        <p class="explanation-text">${question.explanation}</p>
+      </div>
+    `;
+    
+    document.getElementById('quiz-content').insertAdjacentHTML('beforeend', explanationHtml);
+  }
+
+  // Next question
+  nextQuestion() {
+    const quiz = this.currentQuiz;
+    quiz.currentQuestion++;
+    
+    if (quiz.currentQuestion < quiz.questions.length) {
+      this.displayQuestion();
+    } else {
+      this.finishQuiz();
+    }
+  }
+
+  // Finish quiz
+  finishQuiz() {
+    const quiz = this.currentQuiz;
+    const percentage = Math.round((quiz.score / quiz.questions.length) * 100);
+    const timeSpent = Math.round((Date.now() - quiz.startTime) / 1000);
+    
+    // Save to training data
+    this.recordQuizResult(quiz, percentage, timeSpent);
+    
+    // Close quiz modal and show results
+    this.closeModal('scenario-quiz-modal');
+    this.showQuizResults(quiz, percentage, timeSpent);
+  }
+
+  // Record quiz result
+  recordQuizResult(quiz, percentage, timeSpent) {
+    if (!this.trainingData) {
+      this.trainingData = this.loadTrainingData();
+    }
+    
+    const result = {
+      id: Date.now(),
+      difficulty: quiz.difficulty,
+      score: quiz.score,
+      total: quiz.questions.length,
+      percentage: percentage,
+      timeSpent: timeSpent,
+      date: new Date().toISOString().split('T')[0],
+      timestamp: new Date().toISOString()
+    };
+    
+    this.trainingData.history.unshift(result);
+    this.trainingData.quizzesCompleted++;
+    
+    // Update average score
+    const totalScore = this.trainingData.history.reduce((sum, r) => sum + r.percentage, 0);
+    this.trainingData.averageScore = Math.round(totalScore / this.trainingData.history.length);
+    
+    // Update streak
+    if (percentage >= 80) {
+      this.trainingData.currentStreak++;
+    } else {
+      this.trainingData.currentStreak = 0;
+    }
+    
+    this.saveTrainingData();
+    this.updateTrainingStats();
+    
+    // Check for badge unlocks
+    this.checkTrainingBadges(result);
+  }
+
+  // Show quiz results
+  showQuizResults(quiz, percentage, timeSpent) {
+    let scoreClass = 'needs-work';
+    let message = 'Keep practicing!';
+    
+    if (percentage >= 90) {
+      scoreClass = 'excellent';
+      message = 'Outstanding! You really know your rules!';
+    } else if (percentage >= 70) {
+      scoreClass = 'good';
+      message = 'Good work! You\'re getting there!';
+    }
+    
+    document.getElementById('quiz-results-content').innerHTML = `
+      <div class="quiz-results">
+        <div class="results-score ${scoreClass}">${percentage}%</div>
+        <div class="results-message">${message}</div>
+        
+        <div class="results-breakdown">
+          <div class="result-stat">
+            <span class="result-stat-value">${quiz.score}/${quiz.questions.length}</span>
+            <div class="result-stat-label">Correct Answers</div>
+          </div>
+          <div class="result-stat">
+            <span class="result-stat-value">${timeSpent}s</span>
+            <div class="result-stat-label">Time Taken</div>
+          </div>
+          <div class="result-stat">
+            <span class="result-stat-value">${this.capitalizeFirst(quiz.difficulty)}</span>
+            <div class="result-stat-label">Difficulty Level</div>
+          </div>
+        </div>
+        
+        ${this.trainingData.currentStreak >= 3 ? `
+          <div class="badge-earned">
+            <h4>🔥 ${this.trainingData.currentStreak} Quiz Streak!</h4>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    this.showModal('quiz-results-modal');
+  }
+
+  // Update training statistics
+  updateTrainingStats() {
+    if (!this.trainingData) {
+      this.trainingData = this.loadTrainingData();
+    }
+    
+    const quizzesEl = document.getElementById('quizzes-completed');
+    const averageEl = document.getElementById('average-score');
+    const streakEl = document.getElementById('current-streak');
+    
+    if (quizzesEl) quizzesEl.textContent = this.trainingData.quizzesCompleted;
+    if (averageEl) averageEl.textContent = `${this.trainingData.averageScore}%`;
+    if (streakEl) streakEl.textContent = this.trainingData.currentStreak;
+  }
+
+  // Update training activity display
+  updateTrainingActivity() {
+    if (!this.trainingData) {
+      this.trainingData = this.loadTrainingData();
+    }
+    
+    const activityList = document.getElementById('training-activity-list');
+    if (!activityList) return;
+    
+    if (this.trainingData.history.length === 0) {
+      activityList.innerHTML = `
+        <div class="no-activity">
+          <p>No training completed yet. Start your first quiz above!</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const recentActivity = this.trainingData.history.slice(0, 5);
+    activityList.innerHTML = recentActivity.map(activity => {
+      let scoreClass = 'needs-work';
+      if (activity.percentage >= 90) scoreClass = 'excellent';
+      else if (activity.percentage >= 70) scoreClass = 'good';
+      
+      return `
+        <div class="training-activity-item">
+          <div class="activity-info">
+            <div class="activity-title">${this.capitalizeFirst(activity.difficulty)} Quiz</div>
+            <div class="activity-details">
+              ${activity.score}/${activity.total} correct • ${this.getTimeAgo(activity.timestamp)}
+            </div>
+          </div>
+          <div class="activity-score ${scoreClass}">
+            ${activity.percentage}%
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Check for training-related badge unlocks
+  checkTrainingBadges(result) {
+    // Rule Master badge - 5 perfect scores
+    const perfectScores = this.trainingData.history.filter(h => h.percentage === 100).length;
+    if (perfectScores >= 5 && !this.badgeData['rule-master']) {
+      this.unlockBadge('rule-master', 'Rule Master');
+    }
+    
+    // Quiz Streak badge - 10 quiz streak
+    if (this.trainingData.currentStreak >= 10 && !this.badgeData['quiz-streak']) {
+      this.unlockBadge('quiz-streak', 'Quiz Streak Champion');
+    }
+    
+    // Knowledge Seeker badge - 25 quizzes completed
+    if (this.trainingData.quizzesCompleted >= 25 && !this.badgeData['knowledge-seeker']) {
+      this.unlockBadge('knowledge-seeker', 'Knowledge Seeker');
+    }
+    
+    // Advanced Scholar badge - perfect score on advanced quiz
+    if (result.difficulty === 'advanced' && result.percentage === 100 && !this.badgeData['advanced-scholar']) {
+      this.unlockBadge('advanced-scholar', 'Advanced Scholar');
+    }
+  }
+
+  // Utility function to capitalize first letter
+  capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Initialize training system
+  initializeTrainingSystem() {
+    this.trainingData = this.loadTrainingData();
+    this.scenarioQuestions = this.getScenarioQuestions();
+    this.updateTrainingStats();
+    this.updateTrainingActivity();
+  }
+
+  // ====== CLUB ADMIN FUNCTIONALITY ======
+
+  // Show Club Admin functions
+  showRefereeManagement() {
+    document.getElementById('referee-management-modal').style.display = 'block';
+    console.log('📋 Opening referee management');
+  }
+
+  showMentorManagement() {
+    document.getElementById('mentor-management-modal').style.display = 'block';
+    console.log('🤝 Opening mentor management');
+  }
+
+  showSafetyAlerts() {
+    document.getElementById('safety-alerts-modal').style.display = 'block';
+    console.log('🚨 Opening safety alerts');
+  }
+
+  exportClubData() {
+    document.getElementById('export-modal').style.display = 'block';
+    console.log('📊 Opening data export');
+  }
+
+  // Club Admin Data Management
+  loadClubData() {
+    const saved = localStorage.getItem('refready-club-data');
+    return saved ? JSON.parse(saved) : {
+      clubId: 'club-adelaide-netball-001',
+      clubName: 'Adelaide Netball Association',
+      activeReferees: 15,
+      activeMentors: 8,
+      weeklyGames: 24,
+      safetyAlerts: 0,
+      referees: [
+        {
+          id: 'ref-001',
+          name: 'Emma Richardson',
+          email: 'emma.richardson@email.com',
+          level: 'Rising Star',
+          gamesCount: 12,
+          avgConfidence: 8.2,
+          badgeCount: 5,
+          activeDate: '2024-01-15',
+          mentorId: 'mentor-001'
+        },
+        {
+          id: 'ref-002',
+          name: 'James Wilson',
+          email: 'james.wilson@email.com',
+          level: 'Newcomer',
+          gamesCount: 6,
+          avgConfidence: 6.8,
+          badgeCount: 2,
+          activeDate: '2024-03-10',
+          mentorId: 'mentor-002'
+        },
+        {
+          id: 'ref-003',
+          name: 'Alex Thompson',
+          email: 'alex.thompson@email.com',
+          level: 'Developing',
+          gamesCount: 9,
+          avgConfidence: 7.5,
+          badgeCount: 4,
+          activeDate: '2024-02-20',
+          mentorId: null
+        }
+      ],
+      mentors: [
+        {
+          id: 'mentor-001',
+          name: 'Sarah Mitchell',
+          role: 'Senior Mentor',
+          experience: '5 years',
+          specialties: ['Confidence Building', 'Rule Knowledge'],
+          menteeCount: 4,
+          feedbackCount: 23,
+          rating: 4.8
+        },
+        {
+          id: 'mentor-002',
+          name: 'Mike Roberts',
+          role: 'Club Mentor',
+          experience: '3 years',
+          specialties: ['Game Positioning', 'Communication'],
+          menteeCount: 3,
+          feedbackCount: 18,
+          rating: 4.6
+        }
+      ],
+      safetyIncidents: [
+        {
+          id: 'alert-001',
+          type: 'Sideline Incident',
+          reportedBy: 'Emma Richardson',
+          date: '2024-01-25',
+          game: 'U15 vs Torrens Valley',
+          severity: 'medium',
+          status: 'resolved',
+          description: 'Aggressive parent behavior towards referee decision. Issue de-escalated by mentor Sarah Mitchell.',
+          resolution: 'Parent spoken to by club coordinator. Formal warning issued.',
+          resolvedBy: 'Club Administrator'
+        },
+        {
+          id: 'alert-002',
+          type: 'Equipment Issue',
+          reportedBy: 'James Wilson',
+          date: '2024-01-21',
+          game: 'U13 vs Adelaide Hills',
+          severity: 'low',
+          status: 'resolved',
+          description: 'Whistle malfunction during game. Backup whistle provided by mentor.',
+          resolution: 'New whistles ordered for all referees. Equipment check protocols updated.',
+          resolvedBy: 'Equipment Coordinator'
+        }
+      ]
+    };
+  }
+
+  saveClubData() {
+    if (this.clubData) {
+      localStorage.setItem('refready-club-data', JSON.stringify(this.clubData));
+    }
+  }
+
+  // Referee Management Functions
+  viewRefereeProfile(refereeId) {
+    const referee = this.clubData.referees.find(r => r.id === `ref-${refereeId}` || r.name.toLowerCase().includes(refereeId));
+    if (referee) {
+      this.showNotification(`Viewing profile for ${referee.name} 👤`, 'info');
+      console.log('👤 Referee profile:', referee);
+      // In a real app, this would navigate to detailed profile view
+    }
+  }
+
+  assignMentorToReferee(refereeId) {
+    this.showNotification(`Assigning mentor to referee... 🤝`, 'info');
+    console.log('🤝 Assign mentor to:', refereeId);
+    // In a real app, this would show a mentor selection modal
+  }
+
+  showInviteReferee() {
+    this.showNotification('Opening referee invitation form... 📧', 'info');
+    console.log('📧 Invite new referee');
+    // In a real app, this would show an invitation form
+  }
+
+  // Mentor Management Functions
+  viewMentorProfile(mentorId) {
+    const mentor = this.clubData.mentors.find(m => m.name.toLowerCase().includes(mentorId));
+    if (mentor) {
+      this.showNotification(`Viewing profile for ${mentor.name} 🤝`, 'info');
+      console.log('🤝 Mentor profile:', mentor);
+    }
+  }
+
+  manageMentorAssignments(mentorId) {
+    this.showNotification(`Managing assignments for mentor... 📋`, 'info');
+    console.log('📋 Manage assignments for:', mentorId);
+    // In a real app, this would show assignment management interface
+  }
+
+  showInviteMentor() {
+    this.showNotification('Opening mentor invitation form... 📧', 'info');
+    console.log('📧 Invite new mentor');
+    // In a real app, this would show mentor invitation form
+  }
+
+  showMentorAssignment(gameId) {
+    this.showNotification('Opening mentor assignment... 🎯', 'info');
+    console.log('🎯 Assign mentor to game:', gameId);
+    // In a real app, this would show mentor selection for specific game
+  }
+
+  // Safety Alert Functions
+  viewAlertDetails(alertId) {
+    const alert = this.clubData.safetyIncidents.find(a => a.id === alertId);
+    if (alert) {
+      this.showNotification(`Viewing details for ${alert.type} 🔍`, 'info');
+      console.log('🔍 Alert details:', alert);
+    }
+  }
+
+  followUpAlert(alertId) {
+    this.showNotification('Opening follow-up actions... 📞', 'info');
+    console.log('📞 Follow up on alert:', alertId);
+    // In a real app, this would show follow-up action form
+  }
+
+  // Data Export Functions
+  generateClubReport() {
+    const selectedCategories = [];
+    const checkboxes = document.querySelectorAll('.export-checkbox input[type="checkbox"]:checked');
+    checkboxes.forEach(cb => {
+      selectedCategories.push(cb.parentElement.textContent.trim());
+    });
+
+    const format = document.querySelector('input[name="format"]:checked').value;
+    const period = document.getElementById('export-period').value;
+
+    // Generate sample report data
+    const reportData = {
+      clubInfo: {
+        name: this.clubData.clubName,
+        id: this.clubData.clubId,
+        generatedDate: new Date().toISOString(),
+        period: period,
+        format: format
+      },
+      summary: {
+        activeReferees: this.clubData.activeReferees,
+        activeMentors: this.clubData.activeMentors,
+        totalGames: this.clubData.weeklyGames * 4, // Monthly estimate
+        safetyIncidents: this.clubData.safetyIncidents.length
+      },
+      refereeData: this.clubData.referees,
+      mentorData: this.clubData.mentors,
+      safetyData: this.clubData.safetyIncidents,
+      categories: selectedCategories
+    };
+
+    // Create and download file based on format
+    let fileContent, fileName, mimeType;
+
+    switch(format) {
+      case 'csv':
+        fileContent = this.generateCSVReport(reportData);
+        fileName = `refready-club-report-${new Date().toISOString().split('T')[0]}.csv`;
+        mimeType = 'text/csv';
+        break;
+      case 'json':
+        fileContent = JSON.stringify(reportData, null, 2);
+        fileName = `refready-club-report-${new Date().toISOString().split('T')[0]}.json`;
+        mimeType = 'application/json';
+        break;
+      case 'pdf':
+        this.showNotification('PDF generation coming soon! 📄', 'info');
+        return;
+      default:
+        fileContent = JSON.stringify(reportData, null, 2);
+        fileName = `refready-club-report-${new Date().toISOString().split('T')[0]}.json`;
+        mimeType = 'application/json';
+    }
+
+    // Download file
+    const blob = new Blob([fileContent], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.showNotification('Club report generated successfully! 📊', 'success');
+    this.closeModal('export-modal');
+    console.log('📊 Report generated:', fileName);
+  }
+
+  generateCSVReport(data) {
+    let csv = `RefReady Club Report - ${data.clubInfo.name}\n`;
+    csv += `Generated: ${new Date(data.clubInfo.generatedDate).toLocaleDateString()}\n`;
+    csv += `Period: ${data.clubInfo.period}\n\n`;
+    
+    // Summary section
+    csv += `Summary\n`;
+    csv += `Active Referees,${data.summary.activeReferees}\n`;
+    csv += `Active Mentors,${data.summary.activeMentors}\n`;
+    csv += `Total Games,${data.summary.totalGames}\n`;
+    csv += `Safety Incidents,${data.summary.safetyIncidents}\n\n`;
+    
+    // Referee data
+    csv += `Referee Details\n`;
+    csv += `Name,Email,Level,Games,Avg Confidence,Badges,Active Since\n`;
+    data.refereeData.forEach(ref => {
+      csv += `${ref.name},${ref.email},${ref.level},${ref.gamesCount},${ref.avgConfidence},${ref.badgeCount},${ref.activeDate}\n`;
+    });
+    
+    csv += `\nMentor Details\n`;
+    csv += `Name,Role,Experience,Mentees,Feedback Count,Rating\n`;
+    data.mentorData.forEach(mentor => {
+      csv += `${mentor.name},${mentor.role},${mentor.experience},${mentor.menteeCount},${mentor.feedbackCount},${mentor.rating}\n`;
+    });
+    
+    return csv;
+  }
+
+  // Initialize Club Admin (if user is club admin)
+  initializeClubAdmin() {
+    this.clubData = this.loadClubData();
+    
+    // Check if current user has admin access (for demo, show for specific user names)
+    const userData = this.loadUserData();
+    const isClubAdmin = userData.name === 'Admin' || userData.name === 'Sarah' || userData.currentLevel === 'Club Admin';
+    
+    if (isClubAdmin) {
+      // Show admin navigation tab
+      const adminNav = document.getElementById('club-admin-nav');
+      if (adminNav) {
+        adminNav.style.display = 'flex';
+        console.log('🏢 Club admin access granted');
+      }
+    }
+    
+    console.log('🏢 Club admin data loaded:', this.clubData.clubName);
+  }
+
+  // Update club statistics display
+  updateClubStats() {
+    if (!this.clubData) return;
+    
+    // Update overview cards if on admin screen
+    const adminCards = document.querySelectorAll('.admin-card-content h3');
+    if (adminCards.length > 0) {
+      adminCards[0].textContent = this.clubData.activeReferees;
+      adminCards[1].textContent = this.clubData.activeMentors;
+      adminCards[2].textContent = this.clubData.weeklyGames;
+      adminCards[3].textContent = this.clubData.safetyAlerts;
+    }
+  }
+
+  // Demo function to toggle admin access for testing
+  toggleAdminAccess() {
+    const userData = this.loadUserData();
+    const adminNav = document.getElementById('club-admin-nav');
+    
+    if (userData.currentLevel === 'Club Admin') {
+      // Remove admin access
+      userData.currentLevel = 'Rising Star';
+      if (adminNav) adminNav.style.display = 'none';
+      this.showNotification('Admin access removed 👤', 'info');
+      console.log('🔧 Admin access disabled');
+    } else {
+      // Grant admin access
+      userData.currentLevel = 'Club Admin';
+      if (adminNav) adminNav.style.display = 'flex';
+      this.showNotification('Admin access granted! 🏢', 'success');
+      console.log('🔧 Admin access enabled');
+    }
+    
+    this.userData = userData;
+    this.saveUserData();
+    this.updateProfileStats();
+  }
+
+  // === NEW HIGH-PRIORITY FEATURES ===
+
+  // Analytics System
+  initializeAnalytics() {
+    this.analytics = {
+      currentPeriod: 'month',
+      data: {
+        month: {
+          gamesCount: 12,
+          avgConfidence: 8.2,
+          badgeCount: 5,
+          confidenceData: [6, 7, 8, 9, 8, 7, 8, 9, 8, 7, 8, 9],
+          skillBreakdown: {
+            'Game Management': 85,
+            'Positioning': 78,
+            'Decision Making': 82,
+            'Communication': 88,
+            'Rule Knowledge': 90,
+            'Time Management': 75
+          }
+        },
+        quarter: {
+          gamesCount: 28,
+          avgConfidence: 7.8,
+          badgeCount: 8,
+          confidenceData: [6, 6, 7, 7, 8, 8, 8, 9, 8, 7, 8, 9],
+          skillBreakdown: {
+            'Game Management': 80,
+            'Positioning': 75,
+            'Decision Making': 78,
+            'Communication': 85,
+            'Rule Knowledge': 88,
+            'Time Management': 72
+          }
+        },
+        year: {
+          gamesCount: 85,
+          avgConfidence: 7.2,
+          badgeCount: 12,
+          confidenceData: [5, 6, 6, 7, 7, 8, 8, 8, 8, 7, 8, 9],
+          skillBreakdown: {
+            'Game Management': 75,
+            'Positioning': 70,
+            'Decision Making': 75,
+            'Communication': 80,
+            'Rule Knowledge': 85,
+            'Time Management': 68
+          }
+        }
+      }
+    };
+    
+    this.setupAnalytics();
+  }
+
+  setupAnalytics() {
+    this.updateAnalytics();
+    this.setupPeriodSelector();
+    this.generateConfidenceChart();
+    this.generateSkillBars();
+    this.generateBadgeTimeline();
+  }
+
+  setupPeriodSelector() {
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        this.analytics.currentPeriod = e.target.dataset.period;
+        this.updateAnalytics();
+      });
+    });
+  }
+
+  updateAnalytics() {
+    const data = this.analytics.data[this.analytics.currentPeriod];
+    
+    // Update metric cards
+    const gamesMetric = document.querySelector('#games-metric .metric-value');
+    const confidenceMetric = document.querySelector('#confidence-metric .metric-value');
+    const badgesMetric = document.querySelector('#badges-metric .metric-value');
+    
+    if (gamesMetric) gamesMetric.textContent = data.gamesCount;
+    if (confidenceMetric) confidenceMetric.textContent = data.avgConfidence.toFixed(1);
+    if (badgesMetric) badgesMetric.textContent = data.badgeCount;
+    
+    // Update change indicators
+    this.updateMetricChanges();
+    this.generateConfidenceChart();
+    this.generateSkillBars();
+  }
+
+  updateMetricChanges() {
+    const periods = ['month', 'quarter', 'year'];
+    const currentIndex = periods.indexOf(this.analytics.currentPeriod);
+    
+    if (currentIndex > 0) {
+      const previousPeriod = periods[currentIndex - 1];
+      const current = this.analytics.data[this.analytics.currentPeriod];
+      const previous = this.analytics.data[previousPeriod];
+      
+      this.updateChangeIndicator('#games-metric', current.gamesCount, previous.gamesCount);
+      this.updateChangeIndicator('#confidence-metric', current.avgConfidence, previous.avgConfidence);
+      this.updateChangeIndicator('#badges-metric', current.badgeCount, previous.badgeCount);
+    }
+  }
+
+  updateChangeIndicator(selector, current, previous) {
+    const changeElement = document.querySelector(`${selector} .metric-change`);
+    if (!changeElement) return;
+    
+    const diff = current - previous;
+    const percentage = ((diff / previous) * 100).toFixed(1);
+    
+    changeElement.classList.remove('positive', 'negative', 'neutral');
+    
+    if (diff > 0) {
+      changeElement.classList.add('positive');
+      changeElement.textContent = `+${percentage}%`;
+    } else if (diff < 0) {
+      changeElement.classList.add('negative');
+      changeElement.textContent = `${percentage}%`;
+    } else {
+      changeElement.classList.add('neutral');
+      changeElement.textContent = '0%';
+    }
+  }
+
+  generateConfidenceChart() {
+    const data = this.analytics.data[this.analytics.currentPeriod].confidenceData;
+    const barsContainer = document.querySelector('.frequency-bars');
+    if (!barsContainer) return;
+    
+    barsContainer.innerHTML = '';
+    
+    // Create frequency count
+    const frequency = new Array(10).fill(0);
+    data.forEach(value => frequency[value - 1]++);
+    
+    const maxFreq = Math.max(...frequency);
+    
+    frequency.forEach((count, index) => {
+      const barContainer = document.createElement('div');
+      barContainer.className = 'frequency-bar';
+      
+      const barFill = document.createElement('div');
+      barFill.className = 'bar-fill';
+      barFill.style.height = maxFreq > 0 ? `${(count / maxFreq) * 100}%` : '8px';
+      
+      const barLabel = document.createElement('div');
+      barLabel.className = 'bar-label';
+      barLabel.textContent = index + 1;
+      
+      barContainer.appendChild(barFill);
+      barContainer.appendChild(barLabel);
+      barsContainer.appendChild(barContainer);
+    });
+  }
+
+  generateSkillBars() {
+    const data = this.analytics.data[this.analytics.currentPeriod].skillBreakdown;
+    const container = document.querySelector('.skill-breakdown');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    Object.entries(data).forEach(([skill, score]) => {
+      const skillBar = document.createElement('div');
+      skillBar.className = 'skill-bar';
+      
+      skillBar.innerHTML = `
+        <div class="skill-name">${skill}</div>
+        <div class="skill-progress">
+          <div class="skill-fill" style="width: ${score}%"></div>
+        </div>
+        <div class="skill-score">${score}</div>
+      `;
+      
+      container.appendChild(skillBar);
+    });
+  }
+
+  generateBadgeTimeline() {
+    const timeline = document.querySelector('.badge-timeline');
+    if (!timeline) return;
+    
+    const badges = [
+      { name: 'First Game', date: 'Jan 15', status: 'earned' },
+      { name: 'Confident Caller', date: 'Feb 20', status: 'earned' },
+      { name: 'Mentor Favorite', date: 'Mar 10', status: 'earned' },
+      { name: 'Season Strong', date: 'Apr 25', status: 'in-progress', progress: '12/20' },
+      { name: 'Advanced Communicator', date: 'Jun 15', status: 'upcoming' }
+    ];
+    
+    timeline.innerHTML = '';
+    
+    badges.forEach(badge => {
+      const item = document.createElement('div');
+      item.className = `timeline-item ${badge.status}`;
+      
+      item.innerHTML = `
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-date">${badge.date}</div>
+          ${badge.progress ? `<div class="badge-progress-text">${badge.progress}</div>` : ''}
+        </div>
+      `;
+      
+      timeline.appendChild(item);
+    });
+  }
+
+  exportAnalytics(format) {
+    const data = this.analytics.data[this.analytics.currentPeriod];
+    const exportData = {
+      period: this.analytics.currentPeriod,
+      games: data.gamesCount,
+      averageConfidence: data.avgConfidence,
+      badges: data.badgeCount,
+      skills: data.skillBreakdown,
+      exportDate: new Date().toISOString()
+    };
+    
+    if (format === 'csv') {
+      this.downloadAnalyticsCSV(exportData);
+    } else {
+      this.downloadAnalyticsJSON(exportData);
+    }
+    
+    this.showNotification('Analytics data exported successfully!', 'success');
+  }
+
+  downloadAnalyticsCSV(data) {
+    const csv = [
+      ['Metric', 'Value'],
+      ['Period', data.period],
+      ['Games Refereed', data.games],
+      ['Average Confidence', data.averageConfidence],
+      ['Badges Earned', data.badges],
+      ['Export Date', new Date(data.exportDate).toLocaleDateString()],
+      [''],
+      ['Skill', 'Score'],
+      ...Object.entries(data.skills)
+    ].map(row => row.join(',')).join('\n');
+    
+    this.downloadFile(`analytics-${data.period}.csv`, csv, 'text/csv');
+  }
+
+  downloadAnalyticsJSON(data) {
+    const json = JSON.stringify(data, null, 2);
+    this.downloadFile(`analytics-${data.period}.json`, json, 'application/json');
+  }
+
+  downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Goals System
+  initializeGoals() {
+    this.goals = {
+      currentCategory: 'confidence',
+      goals: [
+        {
+          id: 1,
+          type: 'confidence',
+          title: 'Reach 8/10 confidence',
+          description: 'Maintain confidence level of 8 or higher for 2 weeks',
+          target: 8,
+          current: 7.8,
+          deadline: '2024-03-15',
+          status: 'active',
+          weeklyProgress: [8, 7, 8, 9, 0, 0, 0]
+        },
+        {
+          id: 2,
+          type: 'games',
+          title: 'Referee 20 games',
+          description: 'Complete 20 games this quarter',
+          target: 20,
+          current: 15,
+          deadline: '2024-03-31',
+          status: 'active',
+          weeklyProgress: [3, 4, 4, 4, 0, 0, 0]
+        },
+        {
+          id: 3,
+          type: 'skills',
+          title: 'Master positioning',
+          description: 'Achieve 90% score in positioning assessment',
+          target: 90,
+          current: 78,
+          deadline: '2024-04-01',
+          status: 'active',
+          trendData: [70, 72, 75, 76, 78]
+        },
+        {
+          id: 4,
+          type: 'confidence',
+          title: 'First perfect 10',
+          description: 'Achieve maximum confidence in a game',
+          target: 10,
+          current: 9,
+          deadline: '2024-02-28',
+          status: 'completed',
+          completedDate: '2024-02-20'
+        }
+      ],
+      
+      recommendations: [
+        {
+          icon: '💪',
+          title: 'Consistency Challenge',
+          description: 'Maintain 8+ confidence for 14 straight days',
+          reason: 'Based on your current confidence trend'
+        },
+        {
+          icon: '🎯',
+          title: 'Communication Focus',
+          description: 'Practice clear signal delivery in 5 games',
+          reason: 'Your weakest skill area shows room for improvement'
+        },
+        {
+          icon: '📚',
+          title: 'Rules Mastery',
+          description: 'Complete advanced rules training module',
+          reason: 'Perfect for your Rising Star level'
+        }
+      ]
+    };
+    
+    this.setupGoals();
+  }
+
+  setupGoals() {
+    this.setupGoalCategories();
+    this.renderGoals();
+    this.renderGoalStats();
+    this.renderGoalRecommendations();
+  }
+
+  setupGoalCategories() {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        this.goals.currentCategory = e.target.dataset.category;
+        this.renderGoals();
+      });
+    });
+  }
+
+  renderGoalStats() {
+    const active = this.goals.goals.filter(g => g.status === 'active').length;
+    const completed = this.goals.goals.filter(g => g.status === 'completed').length;
+    
+    const activeEl = document.querySelector('#active-goals .stat-number');
+    const completedEl = document.querySelector('#completed-goals .stat-number');
+    const completionEl = document.querySelector('#goal-completion .stat-number');
+    
+    if (activeEl) activeEl.textContent = active;
+    if (completedEl) completedEl.textContent = completed;
+    if (completionEl) {
+      completionEl.textContent = active > 0 ? Math.round((completed / (active + completed)) * 100) + '%' : '0%';
+    }
+  }
+
+  renderGoals() {
+    const activeGoals = this.goals.goals.filter(g => 
+      g.status === 'active' && 
+      (this.goals.currentCategory === 'all' || g.type === this.goals.currentCategory)
+    );
+    
+    const completedGoals = this.goals.goals.filter(g => g.status === 'completed');
+    
+    this.renderGoalsList(activeGoals, '.current-goals', false);
+    this.renderGoalsList(completedGoals, '.completed-goals', true);
+  }
+
+  renderGoalsList(goals, selector, isCompleted) {
+    const container = document.querySelector(selector);
+    if (!container) return;
+    
+    // Find or create goal list container
+    let goalList = container.querySelector('.goal-list');
+    if (!goalList) {
+      goalList = document.createElement('div');
+      goalList.className = 'goal-list';
+      container.appendChild(goalList);
+    }
+    
+    goalList.innerHTML = '';
+    
+    goals.forEach(goal => {
+      const goalCard = this.createGoalCard(goal, isCompleted);
+      goalList.appendChild(goalCard);
+    });
+  }
+
+  createGoalCard(goal, isCompleted) {
+    const card = document.createElement('div');
+    card.className = `goal-card ${isCompleted ? 'completed' : ''}`;
+    
+    const progress = Math.min((goal.current / goal.target) * 100, 100);
+    const iconMap = {
+      confidence: '💪',
+      games: '📅',
+      skills: '🎯',
+      badges: '🎖️'
+    };
+    
+    card.innerHTML = `
+      <div class="goal-header">
+        <div class="goal-icon">${iconMap[goal.type]}</div>
+        <div class="goal-info">
+          <h4>${goal.title}</h4>
+          <p>${goal.description}</p>
+        </div>
+        <div class="goal-menu">
+          <button class="menu-btn" onclick="app.showGoalMenu(${goal.id})">⋯</button>
+        </div>
+      </div>
+      
+      ${!isCompleted ? `
+        <div class="goal-progress">
+          <div class="progress-visual">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progress}%"></div>
+            </div>
+            <span class="progress-text">${goal.current}/${goal.target}</span>
+          </div>
+          <div class="goal-timeline">
+            <span>Started</span>
+            <span>Due: ${new Date(goal.deadline).toLocaleDateString()}</span>
+          </div>
+          ${this.renderGoalProgress(goal)}
+        </div>
+        
+        <div class="goal-insights">
+          <div class="insight-item">
+            <span class="insight-icon">📈</span>
+            <span class="insight-text">${this.getGoalInsight(goal)}</span>
+          </div>
+        </div>
+      ` : `
+        <div class="completion-details">
+          <div class="completion-badge">🎉</div>
+          <div class="completion-info">
+            <div class="completion-date">Completed ${new Date(goal.completedDate).toLocaleDateString()}</div>
+            <div class="completion-celebration">Great job reaching your goal!</div>
+          </div>
+        </div>
+      `}
+    `;
+    
+    return card;
+  }
+
+  renderGoalProgress(goal) {
+    if (goal.type === 'confidence' || goal.type === 'games') {
+      return `
+        <div class="weekly-tracker">
+          ${goal.weeklyProgress.map((value, index) => `
+            <div class="week-item ${value > 0 ? 'completed' : ''} ${index === 4 ? 'current' : ''}">
+              <span class="week-label">W${index + 1}</span>
+              <span class="week-count">${value || '-'}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else if (goal.type === 'skills' && goal.trendData) {
+      return `
+        <div class="skill-trend">
+          <div class="trend-points">
+            ${goal.trendData.map((value, index) => `
+              <div class="trend-point ${index === goal.trendData.length - 1 ? 'current' : ''}" 
+                   style="height: ${(value / 100) * 40}px"></div>
+            `).join('')}
+          </div>
+          <div class="trend-label">Skill progression over time</div>
+        </div>
+      `;
+    }
+    return '';
+  }
+
+  getGoalInsight(goal) {
+    const daysLeft = Math.ceil((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+    const progress = (goal.current / goal.target) * 100;
+    
+    if (progress >= 80) {
+      return `You're almost there! ${Math.round(100 - progress)}% to go.`;
+    } else if (daysLeft < 7) {
+      return `Final week - you can do this!`;
+    } else if (progress < 25) {
+      return `Early days - stay consistent to build momentum.`;
+    } else {
+      return `Good progress! Keep up the steady work.`;
+    }
+  }
+
+  renderGoalRecommendations() {
+    const container = document.querySelector('.goal-recommendations');
+    if (!container) return;
+    
+    // Find or create recommendation list
+    let recList = container.querySelector('.recommendation-list');
+    if (!recList) {
+      recList = document.createElement('div');
+      recList.className = 'recommendation-list';
+      container.appendChild(recList);
+    }
+    
+    recList.innerHTML = '';
+    
+    this.goals.recommendations.forEach(rec => {
+      const card = document.createElement('div');
+      card.className = 'recommendation-card';
+      
+      card.innerHTML = `
+        <div class="recommendation-header">
+          <div class="recommendation-icon">${rec.icon}</div>
+          <div class="recommendation-info">
+            <h4>${rec.title}</h4>
+            <p>${rec.description}</p>
+          </div>
+          <button class="adopt-goal-btn" onclick="app.adoptGoalRecommendation('${rec.title}')">Adopt</button>
+        </div>
+        <div class="recommendation-reason">
+          <div class="reason-text">${rec.reason}</div>
+        </div>
+      `;
+      
+      recList.appendChild(card);
+    });
+  }
+
+  showGoalCreator() {
+    this.showModal('goal-creator-modal');
+  }
+
+  adoptGoalRecommendation(title) {
+    this.showNotification(`"${title}" added to your goals!`, 'success');
+    this.renderGoalStats();
+  }
+
+  showGoalMenu(goalId) {
+    console.log('Show menu for goal:', goalId);
+  }
+
+  // Enhanced Notification System
+  initializeNotifications() {
+    this.notifications = {
+      notifications: [
+        {
+          id: 1,
+          type: 'feedback',
+          title: 'New Feedback Received',
+          message: 'Sarah M. left feedback for your U15 game on Sunday',
+          time: '2 hours ago',
+          read: false,
+          important: false,
+          icon: '💬'
+        },
+        {
+          id: 2,
+          type: 'game',
+          title: 'Upcoming Game Reminder',
+          message: 'U12 game tomorrow at 10 AM - Court 3',
+          time: '6 hours ago',
+          read: false,
+          important: true,
+          icon: '📅'
+        },
+        {
+          id: 3,
+          type: 'badge',
+          title: 'Badge Progress Update',
+          message: 'You\'re 3 games away from "Season Strong" badge!',
+          time: '1 day ago',
+          read: true,
+          important: false,
+          icon: '🎖️'
+        }
+      ],
+      
+      settings: {
+        gameReminders: true,
+        feedbackAlerts: true,
+        badgeNotifications: true,
+        mentorMessages: true,
+        systemUpdates: false,
+        quietHoursEnabled: true,
+        quietStart: '22:00',
+        quietEnd: '07:00'
+      }
+    };
+    
+    this.updateNotificationBadge();
+    this.setupNotificationTabs();
+  }
+
+  updateNotificationBadge() {
+    const unreadCount = this.notifications.notifications.filter(n => !n.read).length;
+    const badge = document.getElementById('notification-count');
+    if (badge) {
+      badge.textContent = unreadCount;
+      badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  setupNotificationTabs() {
+    document.querySelectorAll('.notification-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.notification-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        document.querySelectorAll('.notification-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`notification-${e.target.dataset.tab}`).classList.add('active');
+        
+        if (e.target.dataset.tab === 'recent') {
+          this.renderNotifications();
+        } else if (e.target.dataset.tab === 'settings') {
+          this.renderNotificationSettings();
+        } else if (e.target.dataset.tab === 'history') {
+          this.renderNotificationHistory();
+        }
+      });
+    });
+  }
+
+  renderNotifications() {
+    const container = document.querySelector('#notification-recent .notification-list');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    this.notifications.notifications.forEach(notification => {
+      const item = document.createElement('div');
+      item.className = `notification-item ${notification.read ? 'read' : 'unread'} ${notification.important ? 'important' : ''}`;
+      
+      item.innerHTML = `
+        <div class="notification-icon">${notification.icon}</div>
+        <div class="notification-content">
+          <h4>${notification.title}</h4>
+          <p>${notification.message}</p>
+          <div class="notification-time">${notification.time}</div>
+        </div>
+        ${!notification.read ? '<button class="notification-action" onclick="app.markNotificationAsRead(' + notification.id + ')">Mark Read</button>' : ''}
+      `;
+      
+      container.appendChild(item);
+    });
+  }
+
+  renderNotificationSettings() {
+    const container = document.querySelector('#notification-settings');
+    if (!container) return;
+    
+    container.innerHTML = `
+      <div class="settings-section">
+        <h4>Notification Types</h4>
+        ${this.renderNotificationSettingItem('gameReminders', 'Game Reminders', 'Get notified before upcoming games')}
+        ${this.renderNotificationSettingItem('feedbackAlerts', 'Feedback Alerts', 'Know when you receive new feedback')}
+        ${this.renderNotificationSettingItem('badgeNotifications', 'Badge Notifications', 'Updates on badge progress and achievements')}
+        ${this.renderNotificationSettingItem('mentorMessages', 'Mentor Messages', 'Messages from your assigned mentors')}
+        ${this.renderNotificationSettingItem('systemUpdates', 'System Updates', 'App updates and maintenance notices')}
+      </div>
+      
+      <div class="settings-section">
+        <h4>Quiet Hours</h4>
+        ${this.renderNotificationSettingItem('quietHoursEnabled', 'Enable Quiet Hours', 'Pause notifications during set hours')}
+        ${this.notifications.settings.quietHoursEnabled ? this.renderQuietHours() : ''}
+      </div>
+      
+      <div class="notification-actions">
+        <button class="btn btn-secondary" onclick="app.testNotification()">Test Notification</button>
+        <button class="btn btn-primary" onclick="app.saveNotificationSettings()">Save Settings</button>
+      </div>
+    `;
+  }
+
+  renderNotificationSettingItem(key, label, description) {
+    return `
+      <div class="setting-item">
+        <label class="setting-label">
+          <input type="checkbox" ${this.notifications.settings[key] ? 'checked' : ''} 
+                 onchange="app.updateNotificationSetting('${key}', this.checked)">
+          <div class="checkmark"></div>
+          <div>
+            <div>${label}</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6)">${description}</div>
+          </div>
+        </label>
+      </div>
+    `;
+  }
+
+  renderQuietHours() {
+    return `
+      <div class="quiet-hours-settings">
+        <div class="time-setting">
+          <label>Start:</label>
+          <input type="time" value="${this.notifications.settings.quietStart}" 
+                 onchange="app.updateNotificationSetting('quietStart', this.value)">
+        </div>
+        <div class="time-setting">
+          <label>End:</label>
+          <input type="time" value="${this.notifications.settings.quietEnd}" 
+                 onchange="app.updateNotificationSetting('quietEnd', this.value)">
+        </div>
+      </div>
+    `;
+  }
+
+  renderNotificationHistory() {
+    const container = document.querySelector('#notification-history');
+    if (!container) return;
+    
+    container.innerHTML = `
+      <div class="history-filters">
+        <select onchange="app.filterNotificationHistory(this.value)">
+          <option value="all">All Types</option>
+          <option value="feedback">Feedback</option>
+          <option value="game">Games</option>
+          <option value="badge">Badges</option>
+        </select>
+        <select onchange="app.filterNotificationHistory(this.value)">
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="all">All Time</option>
+        </select>
+      </div>
+      
+      <div class="history-stats">
+        <div class="history-stat">
+          <div class="stat-number">24</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="history-stat">
+          <div class="stat-number">18</div>
+          <div class="stat-label">Read</div>
+        </div>
+        <div class="history-stat">
+          <div class="stat-number">6</div>
+          <div class="stat-label">Unread</div>
+        </div>
+      </div>
+      
+      <div class="history-timeline">
+        <div class="timeline-group">
+          <h5>Today</h5>
+          <div class="timeline-notifications">
+            <div class="timeline-notification">
+              <div class="timeline-time">14:30</div>
+              <div class="timeline-icon">💬</div>
+              <div class="timeline-text">New feedback from Sarah M.</div>
+            </div>
+            <div class="timeline-notification">
+              <div class="timeline-time">09:15</div>
+              <div class="timeline-icon">📅</div>
+              <div class="timeline-text">Game reminder: U12 at 10 AM</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-group">
+          <h5>Yesterday</h5>
+          <div class="timeline-notifications">
+            <div class="timeline-notification">
+              <div class="timeline-time">16:45</div>
+              <div class="timeline-icon">🎖️</div>
+              <div class="timeline-text">Badge progress update</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="clear-history-btn" onclick="app.clearNotificationHistory()">Clear All History</button>
+    `;
+  }
+
+  showNotificationCenter() {
+    this.showModal('notification-center-modal');
+    this.renderNotifications();
+  }
+
+  markNotificationAsRead(id) {
+    const notification = this.notifications.notifications.find(n => n.id === id);
+    if (notification) {
+      notification.read = true;
+      this.updateNotificationBadge();
+      this.renderNotifications();
+    }
+  }
+
+  updateNotificationSetting(key, value) {
+    this.notifications.settings[key] = value;
+    if (key === 'quietHoursEnabled') {
+      this.renderNotificationSettings();
+    }
+  }
+
+  testNotification() {
+    this.showNotification('Test notification sent successfully! 🔔', 'info');
+  }
+
+  saveNotificationSettings() {
+    this.showNotification('Notification settings saved!', 'success');
+    this.closeModal('notification-center-modal');
+  }
+
+  clearNotificationHistory() {
+    if (confirm('Are you sure you want to clear all notification history?')) {
+      this.showNotification('Notification history cleared', 'info');
+    }
+  }
+
+  filterNotificationHistory(value) {
+    console.log('Filter history by:', value);
+  }
+
+  // Enhanced QR Code System
+  initializeEnhancedQR() {
+    this.qrSystem = {
+      currentCode: null,
+      expiryTimer: null
+    };
+  }
+
+  generateSecureQR(gameInfo) {
+    const qrId = this.generateUniqueQRId();
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    
+    this.qrSystem.currentCode = {
+      id: qrId,
+      gameInfo: gameInfo,
+      refereeId: this.userData.id || 'ref123',
+      generated: new Date(),
+      expires: expiryTime,
+      used: false
+    };
+    
+    this.updateQRDisplay();
+    this.startQRExpiryTimer();
+    
+    return this.qrSystem.currentCode;
+  }
+
+  generateUniqueQRId() {
+    return 'QR' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  }
+
+  updateQRDisplay() {
+    if (!this.qrSystem.currentCode) return;
+    
+    // Update game context
+    const gameTitle = document.getElementById('qr-game-title');
+    const gameDetails = document.getElementById('qr-game-details');
+    const qrId = document.getElementById('qr-unique-id');
+    
+    if (gameTitle) gameTitle.textContent = this.qrSystem.currentCode.gameInfo.title;
+    if (gameDetails) gameDetails.textContent = this.qrSystem.currentCode.gameInfo.details;
+    if (qrId) qrId.textContent = this.qrSystem.currentCode.id;
+    
+    // Generate QR pattern
+    this.generateQRPattern();
+    
+    // Update mentor list
+    this.updateQRMentorList();
+  }
+
+  generateQRPattern() {
+    const pattern = document.querySelector('.qr-data-pattern');
+    if (!pattern) return;
+    
+    pattern.innerHTML = '';
+    
+    // Create randomized pattern based on QR ID
+    const seed = this.qrSystem.currentCode.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    let random = seed;
+    
+    for (let i = 0; i < 8; i++) {
+      const row = document.createElement('div');
+      row.className = 'qr-row';
+      
+      for (let j = 0; j < 8; j++) {
+        const module = document.createElement('div');
+        module.className = 'qr-module';
+        
+        // Pseudo-random pattern generation
+        random = (random * 16807) % 2147483647;
+        if (random % 3 === 0) {
+          module.classList.add('filled');
+        }
+        
+        row.appendChild(module);
+      }
+      
+      pattern.appendChild(row);
+    }
+  }
+
+  updateQRMentorList() {
+    const mentorList = document.querySelector('.mentor-list');
+    if (!mentorList) return;
+    
+    const mentors = [
+      { name: 'Sarah Mitchell', role: 'Senior Mentor', status: 'online', avatar: '👩‍🏫' },
+      { name: 'David Chen', role: 'Performance Coach', status: 'online', avatar: '👨‍💼' },
+      { name: 'Lisa Anderson', role: 'Regional Supervisor', status: 'offline', avatar: '👩‍💻' }
+    ];
+    
+    mentorList.innerHTML = '';
+    
+    mentors.forEach(mentor => {
+      const item = document.createElement('div');
+      item.className = 'mentor-item';
+      
+      item.innerHTML = `
+        <div class="mentor-avatar">${mentor.avatar}</div>
+        <div class="mentor-details">
+          <div class="mentor-name">${mentor.name}</div>
+          <div class="mentor-role">${mentor.role}</div>
+        </div>
+        <div class="mentor-status ${mentor.status}">
+          <div class="status-dot"></div>
+          <div class="status-text">${mentor.status}</div>
+        </div>
+      `;
+      
+      mentorList.appendChild(item);
+    });
+  }
+
+  startQRExpiryTimer() {
+    if (this.qrSystem.expiryTimer) {
+      clearInterval(this.qrSystem.expiryTimer);
+    }
+    
+    this.qrSystem.expiryTimer = setInterval(() => {
+      if (!this.qrSystem.currentCode) return;
+      
+      const now = new Date();
+      const timeLeft = this.qrSystem.currentCode.expires - now;
+      
+      if (timeLeft <= 0) {
+        this.expireQRCode();
+        return;
+      }
+      
+      const minutes = Math.floor(timeLeft / 60000);
+      const seconds = Math.floor((timeLeft % 60000) / 1000);
+      
+      const timerElement = document.getElementById('qr-expiry-time');
+      if (timerElement) {
+        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }, 1000);
+  }
+
+  expireQRCode() {
+    if (this.qrSystem.expiryTimer) {
+      clearInterval(this.qrSystem.expiryTimer);
+    }
+    
+    this.qrSystem.currentCode = null;
+    this.showNotification('QR code has expired. Generate a new one if needed.', 'info');
+    this.closeModal('qr-modal');
+  }
+
+  regenerateQR() {
+    if (this.qrSystem.currentCode) {
+      this.generateSecureQR(this.qrSystem.currentCode.gameInfo);
+      this.showNotification('New secure QR code generated!', 'success');
+    }
+  }
+
+  shareQR() {
+    if (navigator.share && this.qrSystem.currentCode) {
+      navigator.share({
+        title: 'RefReady Mentor Access',
+        text: `QR Code for ${this.qrSystem.currentCode.gameInfo.title}`,
+        url: window.location.href
+      });
+    } else {
+      // Fallback to clipboard
+      if (this.qrSystem.currentCode) {
+        navigator.clipboard.writeText(this.qrSystem.currentCode.id);
+        this.showNotification('QR code ID copied to clipboard!', 'success');
+      }
+    }
+  }
+
+  // Enhanced QR modal with security
+  showEnhancedQR(gameInfo) {
+    const qrCode = this.generateSecureQR(gameInfo || {
+      title: 'U15 vs Adelaide Hills',
+      details: 'Today, 2:30 PM • Court 2'
+    });
+    
+    this.showModal('qr-modal');
+  }
+}
+
+// Initialize the mobile app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 DOM loaded, starting RefReady Mobile App...');
+  
+  // Only initialize if we have the mobile app structure
+  if (document.querySelector('.mobile-app') && document.getElementById('app')) {
+    window.refreadyApp = new RefReadyApp();
+    window.app = window.refreadyApp; // Create global reference for onclick handlers
+  } else {
+    console.log('⚠️ Mobile app structure not detected');
+  }
+});
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = RefReadyApp;
+} 
