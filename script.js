@@ -200,8 +200,8 @@ if (heroSection) {
 document.querySelectorAll('a[href="#"]:not(.trial-link)').forEach(link => {
     link.addEventListener('click', function(e) {
         e.preventDefault();
-        // For demo purposes only - real links should have proper href
-        console.log('Demo link clicked:', this.textContent);
+        // Navigation link clicked
+console.log('Navigation link clicked:', this.textContent);
     });
 });
 

@@ -7,10 +7,7 @@
 // 3. Enable Authentication (Email/Password)
 // 4. Enable Firestore Database
 // 5. Get your config from Project Settings > Your apps
-// 6. Replace the DEMO_MODE config below with your real config
-// 7. Set DEMO_MODE = false
-
-const DEMO_MODE = false;
+// Production Firebase configuration - no demo mode
 
 // REAL FIREBASE CONFIG - Production ready
 const firebaseConfig = {
@@ -53,26 +50,6 @@ export const db = getFirestore(app);
 export const authFunctions = {
     // Sign in with email and password
     signIn: async (email, password) => {
-        if (DEMO_MODE) {
-            // Demo mode - simulate successful login
-            const demoUsers = {
-                'admin@refready.com': { uid: 'demo-admin', email: 'admin@refready.com', role: 'admin' },
-                'club@refready.com': { uid: 'demo-club', email: 'club@refready.com', role: 'coordinator' },
-                'mentor@refready.com': { uid: 'demo-mentor', email: 'mentor@refready.com', role: 'mentor' },
-                'referee@refready.com': { uid: 'demo-referee', email: 'referee@refready.com', role: 'referee' }
-            };
-            
-            const validPasswords = ['admin123', 'club123', 'mentor123', 'referee123'];
-            
-            if (demoUsers[email] && validPasswords.includes(password)) {
-                // Store demo user in localStorage for session
-                localStorage.setItem('demoUser', JSON.stringify(demoUsers[email]));
-                return { success: true, user: demoUsers[email] };
-            } else {
-                return { success: false, error: 'Invalid demo credentials' };
-            }
-        }
-        
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             return { success: true, user: userCredential.user };
@@ -118,12 +95,6 @@ export const authFunctions = {
 
     // Sign out
     signOut: async () => {
-        if (DEMO_MODE) {
-            // Demo mode - clear localStorage
-            localStorage.removeItem('demoUser');
-            return { success: true };
-        }
-        
         try {
             await signOut(auth);
             return { success: true };
@@ -144,17 +115,6 @@ export const authFunctions = {
 
     // Auth state listener
     onAuthStateChanged: (callback) => {
-        if (DEMO_MODE) {
-            // Demo mode - check localStorage for demo user
-            const demoUser = localStorage.getItem('demoUser');
-            if (demoUser) {
-                callback(JSON.parse(demoUser));
-            } else {
-                callback(null);
-            }
-            return () => {}; // Return empty unsubscribe function
-        }
-        
         return onAuthStateChanged(auth, callback);
     }
 };
@@ -372,30 +332,6 @@ export const utils = {
     }
 };
 
-// Initialize demo data (run once)
-export const initializeDemoData = async () => {
-    try {
-        // Create demo club
-        const clubResult = await dbFunctions.createClub({
-            name: 'Riverside Netball Club',
-            type: 'community',
-            sport: 'netball',
-            code: 'RNC2024',
-            contact: {
-                name: 'Sarah Mitchell',
-                email: 'admin@riversidenetball.com',
-                phone: '+61 8 1234 5678',
-                address: '123 Sports Complex Drive\nAdelaide SA 5000\nAustralia'
-            }
-        });
-
-        if (clubResult.success) {
-            console.log('Demo club created:', clubResult.clubId);
-            return clubResult.clubId;
-        }
-    } catch (error) {
-        console.error('Error initializing demo data:', error);
-    }
-};
+// Production Firebase configuration complete
 
 console.log('Firebase initialized successfully'); 

@@ -23,20 +23,7 @@ The RefReady Club Dashboard is a web-based administrative interface that allows 
 
 ## 🔐 Authentication
 
-### Demo Credentials
-For testing purposes, use these demo credentials:
-
-**Option 1: Demo Login Button**
-- Click "View Demo Dashboard" on the login page
-- No credentials required
-
-**Option 2: Manual Login**
-- Email: `admin@adelaidenetball.com`
-- Password: `demo123`
-
-**Option 3: Alternative Demo**
-- Email: `demo@refready.com`
-- Password: `demo123`
+The dashboard uses Firebase Authentication with email/password sign-in. Users must be registered through the trial signup process or created by administrators in the Firebase Console.
 
 ## 🗂️ File Structure
 
@@ -58,10 +45,10 @@ website/dashboard/
 - Click "Club Dashboard" in the navigation
 - Or go directly to `website/dashboard/login.html`
 
-### 2. Login Options
-- **Quick Demo**: Click "View Demo Dashboard" button
-- **Manual Login**: Use demo credentials above
-- **Password Reset**: Test forgot password functionality
+### 2. Login Process
+- **User Login**: Use valid Firebase user credentials
+- **Trial Signup**: Create new club account through trial signup
+- **Password Reset**: Use Firebase password reset functionality
 
 ### 3. Test Features
 - **Overview**: Check metrics and recent activity
@@ -70,27 +57,27 @@ website/dashboard/
 - **Navigation**: Test sidebar navigation (placeholder links)
 - **Logout**: Test logout functionality
 
-### 4. Demo Data
-The dashboard includes realistic demo data:
-- 15 active referees
-- 8 active mentors
-- 24 weekly games
-- Recent activity feed
+### 4. Real Data
+The dashboard displays real club data from Firebase:
+- Active referees from club signup
+- Active mentors from club signup
+- Game tracking and activity
+- Real-time activity feed
 - Safety incident tracking
 
 ## 🛠️ Technical Details
 
 ### Authentication Flow
 1. User visits login page
-2. Credentials validated against demo data
-3. Session stored in localStorage
+2. Credentials validated against Firebase Authentication
+3. User data retrieved from Firestore
 4. Redirected to dashboard overview
-5. Auto-logout after session expiry
+5. Real-time auth state monitoring
 
 ### Data Management
-- Demo mode uses hardcoded sample data
-- Production mode would sync with backend API
-- Local storage for session management
+- Real-time data sync with Firebase Firestore
+- User authentication through Firebase Auth
+- Role-based access control
 - Real-time UI updates
 
 ### Security Features
@@ -113,41 +100,31 @@ The dashboard includes realistic demo data:
 - Responsive design included
 
 ### Data Integration
-- Replace demo data with API calls
-- Update authentication to use real backend
-- Add proper error handling
+- Firebase Firestore for real-time data
+- Firebase Authentication for user management
+- Proper error handling and validation
 
-## 📊 Demo Data Structure
+## 📊 Data Structure
 
 ### Club Information
-- **Name**: Adelaide Netball Association
-- **Active Referees**: 15
-- **Active Mentors**: 8
-- **Weekly Games**: 24
-- **Average Confidence**: 7.8/10
+- **Name**: Dynamic (from club signup)
+- **Active Referees**: Real count from database
+- **Active Mentors**: Real count from database
+- **Weekly Games**: Actual game tracking
+- **Average Confidence**: Calculated from real data
 
-### Sample Referees
-- Emma Richardson (Rising Star, 12 games)
-- James Wilson (Newcomer, 6 games)
-- Alex Thompson (Developing, 9 games)
-
-### Sample Mentors
-- Sarah Mitchell (Senior Mentor, 5 years)
-- Mike Roberts (Club Mentor, 3 years)
-
-### Recent Activity
-- Game logging
-- Feedback provision
-- Badge achievements
-- Mentor invitations
+### User Roles
+- **Admin**: Full club management access
+- **Coordinator**: Club oversight and management
+- **Mentor**: Referee guidance and support
+- **Referee**: Mobile app access and tracking
 
 ## 🐛 Known Issues
 
 ### Current Limitations
 - Navigation links are placeholder (except Overview)
-- No real backend integration
 - Limited mobile responsiveness
-- Demo data only
+- Some features still in development
 
 ### Future Improvements
 - Real-time data synchronization

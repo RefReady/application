@@ -22,5 +22,5 @@ The marketing website is separate from the mobile app and can be deployed indepe
 
 ## 📱 Related
 
-- Mobile app files are in `../refready-mobile-app/`
+- Mobile app files are in `./mobile/`
 - Planning documentation is in the root folder (`../`) 

@@ -303,7 +303,7 @@ class RefReadyApp {
     // Simulate scan delay
     setTimeout(() => {
       const feedbackData = {
-        mentorName: 'Sarah Mitchell',
+        mentorName: 'Mentor',
         game: 'U15 vs Torrens Valley',
         date: new Date().toISOString().split('T')[0],
         type: 'qr-scan'

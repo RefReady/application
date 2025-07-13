@@ -68,12 +68,12 @@ class DashboardManager {
             const userData = userResult.user;
             this.userRole = userData.role;
 
-            // Check if user has dashboard access
-            if (!['admin', 'coordinator'].includes(this.userRole)) {
-                // Redirect non-admin users to mobile app
-                window.location.href = '../refready-mobile-app/index.html';
-                return;
-            }
+                    // Check if user has dashboard access
+        if (!['admin', 'coordinator'].includes(this.userRole)) {
+            // Redirect non-admin users to mobile app
+            window.location.href = '../mobile/index.html';
+            return;
+        }
 
             // Get club data
             if (userData.clubId) {
