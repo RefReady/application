@@ -46,17 +46,7 @@
                     <input type="text" id="club-name" name="clubName" required placeholder="e.g., Adelaide Netball Association">
                 </div>
                 
-                <div class="form-group">
-                    <label for="sport">Primary Sport</label>
-                    <select id="sport" name="sport" required>
-                        <option value="">Select sport</option>
-                        <option value="netball">Netball</option>
-                        <option value="basketball">Basketball</option>
-                        <option value="football">Football</option>
-                        <option value="rugby">Rugby</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
+
                 
                 <div class="form-group">
                     <label for="referee-count">Approximate number of referees</label>
@@ -137,7 +127,7 @@
             const formData = new FormData(e.target);
             const clubData = {
                 name: formData.get('clubName'),
-                sport: formData.get('sport'),
+                sport: 'netball', // Default to netball
                 refereeCount: formData.get('refereeCount'),
                 type: 'trial',
                 trialStartDate: new Date(),
@@ -153,7 +143,7 @@
             };
 
             // Validation
-            if (!clubData.name || !clubData.sport || !adminData.name || !adminData.email || !adminData.password) {
+            if (!clubData.name || !adminData.name || !adminData.email || !adminData.password) {
                 showNotification('Please fill in all required fields', 'error');
                 return;
             }
