@@ -211,6 +211,8 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('invite-referee-modal')">&times;</span>
             <h2>Invite New Referee</h2>
+            <p class="modal-subtitle">Send an invitation to join your club with multiple easy joining options</p>
+            
             <form id="invite-referee-form">
                 <div class="form-group">
                     <label for="referee-name">Referee Name</label>
@@ -228,16 +230,87 @@
                     <label for="referee-level">Experience Level</label>
                     <select id="referee-level" required>
                         <option value="">Select level...</option>
-                        <option value="newcomer">Newcomer</option>
-                        <option value="developing">Developing</option>
-                        <option value="experienced">Experienced</option>
+                        <option value="newcomer">Newcomer (0-6 months)</option>
+                        <option value="developing">Developing (6-18 months)</option>
+                        <option value="experienced">Experienced (18+ months)</option>
+                        <option value="senior">Senior (3+ years)</option>
                     </select>
                 </div>
+                
+                <div class="form-group">
+                    <label for="invitation-method">Invitation Method</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="invitation-method" value="email" checked>
+                            <span class="radio-label">📧 Email with Direct Link & QR Code</span>
+                            <small>Recommended: One-click join + QR code for mobile</small>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="invitation-method" value="code">
+                            <span class="radio-label">🔑 Club Code Only</span>
+                            <small>Generate code for referee to enter manually</small>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="invitation-method" value="qr">
+                            <span class="radio-label">📱 QR Code Only</span>
+                            <small>Generate QR code for in-person recruitment</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="personal-message">Personal Message (Optional)</label>
+                    <textarea id="personal-message" rows="3" placeholder="Add a personal welcome message..."></textarea>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-outline" onclick="closeModal('invite-referee-modal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="button-text">Send Invitation</span>
+                        <span class="button-loading" style="display: none;">Sending...</span>
+                    </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Invitation Success Modal -->
+    <div id="invitation-success-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('invitation-success-modal')">&times;</span>
+            <div class="success-content">
+                <div class="success-icon">✅</div>
+                <h2>Invitation Sent Successfully!</h2>
+                <p id="success-message">Invitation details will appear here</p>
+                
+                <div id="invitation-details" style="display: none;">
+                    <div class="invitation-info">
+                        <h3>Invitation Details</h3>
+                        <div class="info-item">
+                            <strong>Club Code:</strong> <span id="generated-club-code"></span>
+                            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('generated-club-code')">Copy</button>
+                        </div>
+                        <div class="info-item">
+                            <strong>Invitation Link:</strong> 
+                            <div class="link-container">
+                                <input type="text" id="invitation-link" readonly>
+                                <button class="btn btn-sm btn-outline" onclick="copyToClipboard('invitation-link')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="qr-code-container" style="display: none;">
+                        <h3>QR Code for Mobile Scanning</h3>
+                        <div id="qr-code-display"></div>
+                        <p class="qr-instructions">Referee can scan this QR code with their mobile app to join instantly</p>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="downloadInvitation()">Download Details</button>
+                    <button class="btn btn-primary" onclick="closeModal('invitation-success-modal')">Done</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -324,10 +397,279 @@
         }
         
         // Handle form submissions
-        document.getElementById('invite-referee-form').addEventListener('submit', (e) => {
+        document.getElementById('invite-referee-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            dashboardManager.showNotification('Invite referee feature coming soon!', 'info');
+            await handleInviteReferee();
         });
+
+        // Handle invite referee submission
+        async function handleInviteReferee() {
+            const form = document.getElementById('invite-referee-form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const formData = new FormData(form);
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            
+            try {
+                // Get form values
+                const inviteData = {
+                    name: formData.get('referee-name') || document.getElementById('referee-name').value,
+                    email: formData.get('referee-email') || document.getElementById('referee-email').value,
+                    phone: formData.get('referee-phone') || document.getElementById('referee-phone').value,
+                    level: formData.get('referee-level') || document.getElementById('referee-level').value,
+                    method: formData.get('invitation-method') || document.querySelector('input[name="invitation-method"]:checked').value,
+                    personalMessage: formData.get('personal-message') || document.getElementById('personal-message').value
+                };
+                
+                // Generate invitation
+                const invitationResult = await createRefereeInvitation(inviteData);
+                
+                if (invitationResult.success) {
+                    // Close invite modal
+                    closeModal('invite-referee-modal');
+                    
+                    // Show success modal
+                    showInvitationSuccess(invitationResult);
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    dashboardManager.showNotification('Invitation sent successfully!', 'success');
+                } else {
+                    throw new Error(invitationResult.error || 'Failed to send invitation');
+                }
+                
+            } catch (error) {
+                console.error('Invitation error:', error);
+                dashboardManager.showNotification('Failed to send invitation: ' + error.message, 'error');
+            } finally {
+                // Hide loading state
+                submitBtn.classList.remove('loading');
+            }
+        }
+
+        // Create referee invitation
+        async function createRefereeInvitation(inviteData) {
+            try {
+                // Generate unique invitation ID and club code
+                const invitationId = generateInvitationId();
+                const clubCode = generateClubCode();
+                
+                // Get current user and club info
+                const currentUser = dashboardManager.getCurrentUser();
+                const clubInfo = await getClubInfo(currentUser.uid);
+                
+                // Create invitation data
+                const invitation = {
+                    id: invitationId,
+                    clubId: currentUser.uid,
+                    clubName: clubInfo.name,
+                    clubCode: clubCode,
+                    refereeName: inviteData.name,
+                    refereeEmail: inviteData.email,
+                    refereePhone: inviteData.phone,
+                    refereeLevel: inviteData.level,
+                    personalMessage: inviteData.personalMessage,
+                    method: inviteData.method,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+                };
+                
+                // Save invitation to database
+                await saveInvitation(invitation);
+                
+                // Generate invitation link
+                const invitationLink = generateInvitationLink(invitationId, clubCode);
+                
+                // Send invitation based on method
+                if (inviteData.method === 'email') {
+                    await sendInvitationEmail(invitation, invitationLink);
+                }
+                
+                return {
+                    success: true,
+                    invitation: invitation,
+                    invitationLink: invitationLink,
+                    qrCodeData: invitationLink
+                };
+                
+            } catch (error) {
+                console.error('Create invitation error:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // Generate unique invitation ID
+        function generateInvitationId() {
+            return 'inv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Generate club code
+        function generateClubCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Generate invitation link
+        function generateInvitationLink(invitationId, clubCode) {
+            const baseUrl = window.location.origin;
+            return `${baseUrl}/mobile/join?invitation=${invitationId}&club=${clubCode}`;
+        }
+
+        // Get club info
+        async function getClubInfo(clubId) {
+            try {
+                const clubDoc = await dbFunctions.getDoc(dbFunctions.doc(dbFunctions.db, 'clubs', clubId));
+                if (clubDoc.exists()) {
+                    return clubDoc.data();
+                } else {
+                    return {
+                        name: 'RefReady Club',
+                        email: dashboardManager.getCurrentUser().email
+                    };
+                }
+            } catch (error) {
+                console.error('Get club info error:', error);
+                return {
+                    name: 'RefReady Club',
+                    email: dashboardManager.getCurrentUser().email
+                };
+            }
+        }
+
+        // Save invitation to database
+        async function saveInvitation(invitation) {
+            try {
+                await dbFunctions.setDoc(
+                    dbFunctions.doc(dbFunctions.db, 'invitations', invitation.id),
+                    invitation
+                );
+            } catch (error) {
+                console.error('Save invitation error:', error);
+                throw error;
+            }
+        }
+
+        // Send invitation email
+        async function sendInvitationEmail(invitation, invitationLink) {
+            try {
+                // For now, we'll simulate email sending
+                // In production, this would integrate with a real email service
+                console.log('Sending invitation email:', {
+                    to: invitation.refereeEmail,
+                    subject: `Invitation to join ${invitation.clubName} - RefReady`,
+                    invitationLink: invitationLink,
+                    clubCode: invitation.clubCode
+                });
+                
+                // Simulate email sending delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Send email error:', error);
+                throw error;
+            }
+        }
+
+        // Show invitation success modal
+        function showInvitationSuccess(result) {
+            const modal = document.getElementById('invitation-success-modal');
+            const successMessage = document.getElementById('success-message');
+            const invitationDetails = document.getElementById('invitation-details');
+            const clubCodeSpan = document.getElementById('generated-club-code');
+            const invitationLinkInput = document.getElementById('invitation-link');
+            const qrCodeContainer = document.getElementById('qr-code-container');
+            
+            // Set success message
+            successMessage.textContent = `Invitation sent to ${result.invitation.refereeName} (${result.invitation.refereeEmail})`;
+            
+            // Show invitation details
+            invitationDetails.style.display = 'block';
+            clubCodeSpan.textContent = result.invitation.clubCode;
+            invitationLinkInput.value = result.invitationLink;
+            
+            // Show QR code if method includes QR
+            if (result.invitation.method === 'email' || result.invitation.method === 'qr') {
+                qrCodeContainer.style.display = 'block';
+                generateQRCode(result.qrCodeData);
+            }
+            
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        // Generate QR code
+        function generateQRCode(data) {
+            const qrDisplay = document.getElementById('qr-code-display');
+            qrDisplay.innerHTML = `
+                <div style="text-align: center; color: #666;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">📱</div>
+                    <p>QR Code Generation</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Link: ${data}</p>
+                    <p style="font-size: 12px; color: #999;">QR code library integration needed</p>
+                </div>
+            `;
+            
+            // TODO: Integrate with QR code library like qrcode.js
+            // QRCode.toCanvas(qrDisplay, data, function (error) {
+            //     if (error) console.error(error);
+            // });
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.tagName === 'INPUT' ? element.value : element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                dashboardManager.showNotification('Copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                dashboardManager.showNotification('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        // Download invitation details
+        function downloadInvitation() {
+            const clubCode = document.getElementById('generated-club-code').textContent;
+            const invitationLink = document.getElementById('invitation-link').value;
+            
+            const content = `RefReady Club Invitation Details
+            
+Club Code: ${clubCode}
+Invitation Link: ${invitationLink}
+
+Instructions for Referee:
+1. Download the RefReady mobile app
+2. Either scan the QR code or use the invitation link
+3. Or manually enter the club code: ${clubCode}
+
+Generated on: ${new Date().toLocaleDateString()}`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RefReady_Invitation_${clubCode}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Make functions globally available
+        window.copyToClipboard = copyToClipboard;
+        window.downloadInvitation = downloadInvitation;
         
         document.getElementById('invite-mentor-form').addEventListener('submit', (e) => {
             e.preventDefault();
