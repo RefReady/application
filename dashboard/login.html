@@ -51,6 +51,7 @@
             
             <div class="login-footer">
                 <p><a href="#" id="forgot-password">Forgot password?</a></p>
+                <p><a href="register.html">Don't have an account? Sign up here</a></p>
                 <p><a href="#" id="need-help">Need help accessing your dashboard?</a></p>
             </div>
         </div>
@@ -153,11 +154,29 @@
             loginBtn.disabled = true;
 
             try {
-                // Use local auth system
-                if (window.refReadyAuth) {
-                    await window.refReadyAuth.login(email, password, remember);
+                // Try to sign in with Firebase
+                const result = await authFunctions.signIn(email, password);
+                
+                if (result.success) {
+                    // Get user data from Firestore
+                    const userDoc = await dbFunctions.getUser(result.user.uid);
+                    
+                    if (userDoc.success) {
+                        // Remember user if checkbox is checked
+                        if (remember) {
+                            localStorage.setItem('refready_remember', email);
+                        } else {
+                            localStorage.removeItem('refready_remember');
+                        }
+
+                        showNotification('Login successful! Redirecting...', 'success');
+                        // Auth state change will handle redirect
+                    } else {
+                        showNotification('User profile not found. Please contact support.', 'error');
+                        await authFunctions.signOut();
+                    }
                 } else {
-                    showNotification('Authentication system not loaded', 'error');
+                    showNotification(result.error || 'Invalid email or password', 'error');
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -234,16 +253,11 @@
         
         // Handle demo login
         document.getElementById('demo-login').addEventListener('click', () => {
-            // Use the local demo authentication system
-            if (window.refReadyAuth) {
-                window.refReadyAuth.loginDemo();
-            } else {
-                // Fallback: Fill in demo admin credentials
-                document.getElementById('club-email').value = 'admin@adelaidenetball.com';
-                document.getElementById('club-password').value = 'demo123';
-                // Submit the form
-                document.getElementById('login-form').dispatchEvent(new Event('submit'));
-            }
+            // Fill in demo admin credentials
+            document.getElementById('club-email').value = 'admin@refready.com';
+            document.getElementById('club-password').value = 'admin123';
+            // Submit the form
+            document.getElementById('login-form').dispatchEvent(new Event('submit'));
         });
         
         // Handle forgot password
@@ -353,11 +367,6 @@
         window.togglePassword = togglePassword;
         window.closeModal = closeModal;
         window.showNotification = showNotification;
-    </script>
-    <script src="auth.js"></script>
-    <script>
-        // Initialize local auth system after auth.js is loaded
-        window.refReadyAuth = new RefReadyAuth();
     </script>
 </body>
 </html> 

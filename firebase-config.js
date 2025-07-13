@@ -10,16 +10,17 @@
 // 6. Replace the DEMO_MODE config below with your real config
 // 7. Set DEMO_MODE = false
 
-const DEMO_MODE = true;
+const DEMO_MODE = false;
 
-// DEMO CONFIG - Replace with your real Firebase config
+// REAL FIREBASE CONFIG - Production ready
 const firebaseConfig = {
-  apiKey: "demo-api-key",
-  authDomain: "refready-demo.firebaseapp.com",
-  projectId: "refready-demo",
-  storageBucket: "refready-demo.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:demo123456789"
+  apiKey: "AIzaSyC0CQqxMZioRfap6ZAf7WSZ5taWajXP1Ro",
+  authDomain: "refready-app.firebaseapp.com",
+  projectId: "refready-app",
+  storageBucket: "refready-app.firebasestorage.app",
+  messagingSenderId: "395077428999",
+  appId: "1:395077428999:web:f85ec868d57e160ec207a2",
+  measurementId: "G-0EGTEL3VXL"
 };
 
 // REAL CONFIG - Paste your Firebase config here and set DEMO_MODE = false
