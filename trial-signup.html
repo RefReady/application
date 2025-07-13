@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RefReady - Start Your Free Trial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard/dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <span class="logo-icon">🏐</span>
+                <span class="logo-text">RefReady</span>
+            </div>
+            <h1>Start Your Free Trial</h1>
+            <p>Set up your club's referee support system in minutes</p>
+            
+            <div class="trial-benefits">
+                <div class="benefit-item">
+                    <span class="benefit-icon">✅</span>
+                    <span>14-day free trial</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">👥</span>
+                    <span>Support unlimited referees</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">📱</span>
+                    <span>Mobile app included</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-form-container">
+            <form id="trial-form" class="login-form">
+                <h2 style="margin-bottom: 20px; color: #6C5CE7;">Club Information</h2>
+                
+                <div class="form-group">
+                    <label for="club-name">Club/Organization Name</label>
+                    <input type="text" id="club-name" name="clubName" required placeholder="e.g., Adelaide Netball Association">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sport">Primary Sport</label>
+                    <select id="sport" name="sport" required>
+                        <option value="">Select sport</option>
+                        <option value="netball">Netball</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="football">Football</option>
+                        <option value="rugby">Rugby</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="referee-count">Approximate number of referees</label>
+                    <select id="referee-count" name="refereeCount" required>
+                        <option value="">Select range</option>
+                        <option value="1-10">1-10 referees</option>
+                        <option value="11-25">11-25 referees</option>
+                        <option value="26-50">26-50 referees</option>
+                        <option value="51+">51+ referees</option>
+                    </select>
+                </div>
+                
+                <h2 style="margin: 30px 0 20px 0; color: #6C5CE7;">Administrator Details</h2>
+                
+                <div class="form-group">
+                    <label for="admin-name">Your Full Name</label>
+                    <input type="text" id="admin-name" name="adminName" required placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin-email">Email Address</label>
+                    <input type="email" id="admin-email" name="adminEmail" required placeholder="your.email@clubname.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin-phone">Phone Number (Optional)</label>
+                    <input type="tel" id="admin-phone" name="adminPhone" placeholder="0400 000 000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin-password">Create Password</label>
+                    <input type="password" id="admin-password" name="adminPassword" required placeholder="Create a secure password">
+                    <span class="password-toggle" onclick="togglePassword('admin-password')">👁️</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agree-terms" name="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="email-updates" name="emailUpdates">
+                        <span class="checkmark"></span>
+                        Send me updates about RefReady features and tips
+                    </label>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Start Free Trial</span>
+                    <span class="btn-loader" style="display: none;">🔄</span>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Already have an account? <a href="dashboard/login.html">Sign in here</a></p>
+                <p style="font-size: 12px; color: #666; margin-top: 15px;">
+                    No credit card required • Cancel anytime • 14-day free trial
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-background">
+        <div class="bg-pattern"></div>
+    </div>
+
+    <script type="module">
+        import { authFunctions, dbFunctions } from './firebase-config.js';
+
+        // Handle trial form submission
+        document.getElementById('trial-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const clubData = {
+                name: formData.get('clubName'),
+                sport: formData.get('sport'),
+                refereeCount: formData.get('refereeCount'),
+                type: 'trial',
+                trialStartDate: new Date(),
+                trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
+            };
+            
+            const adminData = {
+                name: formData.get('adminName'),
+                email: formData.get('adminEmail'),
+                phone: formData.get('adminPhone'),
+                password: formData.get('adminPassword'),
+                role: 'admin'
+            };
+
+            // Validation
+            if (!clubData.name || !clubData.sport || !adminData.name || !adminData.email || !adminData.password) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (adminData.password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            if (!formData.get('agreeTerms')) {
+                showNotification('Please agree to the Terms of Service', 'error');
+                return;
+            }
+
+            // Show loading state
+            const trialBtn = document.querySelector('.login-btn');
+            const btnText = trialBtn.querySelector('.btn-text');
+            const btnLoader = trialBtn.querySelector('.btn-loader');
+            
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline-block';
+            trialBtn.disabled = true;
+
+            try {
+                // Create club in database
+                const clubResult = await dbFunctions.createClub(clubData);
+                
+                if (clubResult.success) {
+                    // Create admin user
+                    const userData = {
+                        displayName: adminData.name,
+                        role: 'admin',
+                        clubId: clubResult.clubId,
+                        firstName: adminData.name.split(' ')[0],
+                        lastName: adminData.name.split(' ').slice(1).join(' ') || '',
+                        phone: adminData.phone || '',
+                        isClubOwner: true,
+                        trialUser: true
+                    };
+                    
+                    const userResult = await authFunctions.signUp(adminData.email, adminData.password, userData);
+                    
+                    if (userResult.success) {
+                        showNotification('Trial started successfully! Setting up your dashboard...', 'success');
+                        
+                        // Store trial info
+                        localStorage.setItem('refready_trial_start', new Date().toISOString());
+                        localStorage.setItem('refready_club_id', clubResult.clubId);
+                        
+                        // Redirect to dashboard after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = 'dashboard/overview.html';
+                        }, 2000);
+                    } else {
+                        showNotification(userResult.error || 'Failed to create admin account', 'error');
+                    }
+                } else {
+                    showNotification(clubResult.error || 'Failed to create club', 'error');
+                }
+            } catch (error) {
+                console.error('Trial signup error:', error);
+                showNotification('An error occurred during signup', 'error');
+            } finally {
+                // Reset button state
+                btnText.style.display = 'inline-block';
+                btnLoader.style.display = 'none';
+                trialBtn.disabled = false;
+            }
+        });
+
+        // Toggle password visibility
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const toggle = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.dashboard-notification');
+            existingNotifications.forEach(notification => notification.remove());
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `dashboard-notification ${type}`;
+            
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Show notification with animation
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Make functions available globally
+        window.togglePassword = togglePassword;
+        window.showNotification = showNotification;
+    </script>
+    
+    <style>
+        .trial-benefits {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #6C5CE7;
+            font-weight: 500;
+        }
+        
+        .benefit-icon {
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .trial-benefits {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</body>
+</html> 
