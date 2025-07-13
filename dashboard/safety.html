@@ -206,82 +206,12 @@
                     </div>
 
                     <div class="alerts-grid" id="alerts-grid">
-                        <!-- Alert Card 1 - Active -->
-                        <div class="alert-card active" data-status="active" data-priority="medium">
-                            <div class="alert-header">
-                                <div class="alert-priority medium">Medium Priority</div>
-                                <div class="alert-status active">Active</div>
-                                <div class="alert-time">2 hours ago</div>
-                            </div>
-                            <div class="alert-content">
-                                <h3 class="alert-title">Spectator Misconduct</h3>
-                                <p class="alert-description">Emma Richardson reported inappropriate comments from spectators during U15 match. Referee felt uncomfortable and unsupported.</p>
-                                <div class="alert-details">
-                                    <span class="alert-referee">Referee: Emma Richardson</span>
-                                    <span class="alert-location">Location: Court 3</span>
-                                    <span class="alert-game">Game: U15 Division A</span>
-                                </div>
-                            </div>
-                            <div class="alert-actions">
-                                <button class="btn btn-sm btn-primary" onclick="followUpAlert('spectator-001')">Follow Up</button>
-                                <button class="btn btn-sm btn-secondary" onclick="contactParent('spectator-001')">Contact Parent</button>
-                                <button class="btn btn-sm btn-outline" onclick="viewAlertDetails('spectator-001')">View Details</button>
-                            </div>
-                        </div>
-
-                        <!-- Alert Card 2 - Resolved -->
-                        <div class="alert-card resolved" data-status="resolved" data-priority="low">
-                            <div class="alert-header">
-                                <div class="alert-priority low">Low Priority</div>
-                                <div class="alert-status resolved">Resolved</div>
-                                <div class="alert-time">1 day ago</div>
-                            </div>
-                            <div class="alert-content">
-                                <h3 class="alert-title">Minor Injury</h3>
-                                <p class="alert-description">James Wilson reported feeling dizzy during second quarter. Took appropriate break and recovered well.</p>
-                                <div class="alert-details">
-                                    <span class="alert-referee">Referee: James Wilson</span>
-                                    <span class="alert-location">Location: Court 1</span>
-                                    <span class="alert-game">Game: U13 Division B</span>
-                                </div>
-                            </div>
-                            <div class="alert-resolution">
-                                <div class="resolution-info">
-                                    <span class="resolution-label">Resolution:</span>
-                                    <span class="resolution-text">Referee took hydration break, mentor provided support, completed game successfully</span>
-                                </div>
-                                <div class="resolution-actions">
-                                    <span class="resolved-by">Resolved by: Mike Roberts</span>
-                                    <span class="resolved-time">1 day ago</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Alert Card 3 - Resolved -->
-                        <div class="alert-card resolved" data-status="resolved" data-priority="medium">
-                            <div class="alert-header">
-                                <div class="alert-priority medium">Medium Priority</div>
-                                <div class="alert-status resolved">Resolved</div>
-                                <div class="alert-time">3 days ago</div>
-                            </div>
-                            <div class="alert-content">
-                                <h3 class="alert-title">Equipment Issue</h3>
-                                <p class="alert-description">Sophie Chen reported whistle malfunction during critical play. Caused confusion and delay in game.</p>
-                                <div class="alert-details">
-                                    <span class="alert-referee">Referee: Sophie Chen</span>
-                                    <span class="alert-location">Location: Court 2</span>
-                                    <span class="alert-game">Game: U16 Division A</span>
-                                </div>
-                            </div>
-                            <div class="alert-resolution">
-                                <div class="resolution-info">
-                                    <span class="resolution-label">Resolution:</span>
-                                    <span class="resolution-text">Backup whistle provided, equipment checklist updated, all referees notified</span>
-                                </div>
-                                <div class="resolution-actions">
-                                    <span class="resolved-by">Resolved by: Sarah Mitchell</span>
-                                    <span class="resolved-time">3 days ago</span>
-                                </div>
+                        <div style="text-align: center; padding: 60px 20px; color: #666; grid-column: 1 / -1;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">🛡️</div>
+                            <h3>No Safety Alerts</h3>
+                            <p>Great news! Your club has no active safety concerns. Safety alerts will appear here if any issues are reported by referees.</p>
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-outline" onclick="showReportIncident()">Report New Incident</button>
                             </div>
                         </div>
                     </div>
