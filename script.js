@@ -196,22 +196,12 @@ if (heroSection) {
     heroObserver.observe(heroSection);
 }
 
-// Add loading state to all CTA buttons
-document.querySelectorAll('a[href="#"]').forEach(link => {
+// Handle CTA button clicks - only for actual placeholder links
+document.querySelectorAll('a[href="#"]:not(.trial-link)').forEach(link => {
     link.addEventListener('click', function(e) {
         e.preventDefault();
-        
-        const originalText = this.textContent;
-        this.textContent = 'Loading...';
-        this.style.opacity = '0.7';
-        
-        setTimeout(() => {
-            this.textContent = originalText;
-            this.style.opacity = '1';
-            
-            // Simulate redirect to signup/trial page
-            alert('Redirecting to signup page...');
-        }, 1500);
+        // For demo purposes only - real links should have proper href
+        console.log('Demo link clicked:', this.textContent);
     });
 });
 
