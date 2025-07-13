@@ -228,27 +228,6 @@ export const dbFunctions = {
 
     // Get users by club and role
     getClubUsers: async (clubId, role = null) => {
-        if (DEMO_MODE) {
-            // Demo mode - return mock data
-            const demoUsers = [
-                { id: 'demo-ref-1', email: 'emma@example.com', role: 'referee', displayName: 'Emma Richardson', isActive: true, profile: { experience: 'newcomer', confidenceLevel: 6, gamesPlayed: 15, badgesEarned: 3 } },
-                { id: 'demo-ref-2', email: 'james@example.com', role: 'referee', displayName: 'James Wilson', isActive: true, profile: { experience: 'developing', confidenceLevel: 8, gamesPlayed: 28, badgesEarned: 7 } },
-                { id: 'demo-ref-3', email: 'alex@example.com', role: 'referee', displayName: 'Alex Thompson', isActive: true, profile: { experience: 'experienced', confidenceLevel: 9, gamesPlayed: 45, badgesEarned: 12 } },
-                { id: 'demo-ref-4', email: 'sophie@example.com', role: 'referee', displayName: 'Sophie Chen', isActive: true, profile: { experience: 'developing', confidenceLevel: 7, gamesPlayed: 22, badgesEarned: 5 } },
-                { id: 'demo-mentor-1', email: 'sarah@example.com', role: 'mentor', displayName: 'Sarah Mitchell', isActive: true, profile: { experience: 'senior', yearsExperience: 8, currentMentees: 3, feedbackSessions: 12 } },
-                { id: 'demo-mentor-2', email: 'mike@example.com', role: 'mentor', displayName: 'Mike Roberts', isActive: true, profile: { experience: 'club', yearsExperience: 5, currentMentees: 2, feedbackSessions: 8 } },
-                { id: 'demo-mentor-3', email: 'david@example.com', role: 'mentor', displayName: 'David Kim', isActive: true, profile: { experience: 'volunteer', yearsExperience: 3, currentMentees: 1, feedbackSessions: 5 } },
-                { id: 'demo-mentor-4', email: 'jennifer@example.com', role: 'mentor', displayName: 'Jennifer Adams', isActive: true, profile: { experience: 'club', yearsExperience: 4, currentMentees: 2, feedbackSessions: 6 } }
-            ];
-            
-            let filteredUsers = demoUsers;
-            if (role) {
-                filteredUsers = demoUsers.filter(user => user.role === role);
-            }
-            
-            return { success: true, users: filteredUsers };
-        }
-        
         try {
             let q = query(collection(db, 'users'), where('clubId', '==', clubId), where('isActive', '==', true));
             if (role) {
@@ -282,47 +261,6 @@ export const dbFunctions = {
     },
 
     getSafetyAlerts: async (clubId) => {
-        if (DEMO_MODE) {
-            // Demo mode - return mock safety alerts
-            const demoAlerts = [
-                {
-                    id: 'demo-alert-1',
-                    title: 'Aggressive Behavior',
-                    description: 'Player became verbally aggressive towards referee during U16 match',
-                    priority: 'high',
-                    status: 'active',
-                    referee: 'Emma Richardson',
-                    location: 'Court 2, Riverside Sports Centre',
-                    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-                    followUpRequired: true
-                },
-                {
-                    id: 'demo-alert-2',
-                    title: 'Parent Complaint',
-                    description: 'Parent questioned referee decisions and approached inappropriately after game',
-                    priority: 'medium',
-                    status: 'resolved',
-                    referee: 'James Wilson',
-                    location: 'Court 1, Riverside Sports Centre',
-                    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-                    followUpRequired: false
-                },
-                {
-                    id: 'demo-alert-3',
-                    title: 'Equipment Issue',
-                    description: 'Referee felt unsafe due to court surface condition',
-                    priority: 'low',
-                    status: 'resolved',
-                    referee: 'Alex Thompson',
-                    location: 'Court 3, Riverside Sports Centre',
-                    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-                    followUpRequired: false
-                }
-            ];
-            
-            return { success: true, alerts: demoAlerts };
-        }
-        
         try {
             const q = query(
                 collection(db, 'safetyAlerts'), 
@@ -356,16 +294,6 @@ export const dbFunctions = {
 
     // Real-time listeners
     listenToClubUsers: (clubId, callback) => {
-        if (DEMO_MODE) {
-            // Demo mode - call callback with demo data immediately
-            dbFunctions.getClubUsers(clubId).then(result => {
-                if (result.success) {
-                    callback(result.users);
-                }
-            });
-            return () => {}; // Return empty unsubscribe function
-        }
-        
         const q = query(collection(db, 'users'), where('clubId', '==', clubId), where('isActive', '==', true));
         return onSnapshot(q, (querySnapshot) => {
             const users = [];
@@ -377,16 +305,6 @@ export const dbFunctions = {
     },
 
     listenToSafetyAlerts: (clubId, callback) => {
-        if (DEMO_MODE) {
-            // Demo mode - call callback with demo data immediately
-            dbFunctions.getSafetyAlerts(clubId).then(result => {
-                if (result.success) {
-                    callback(result.alerts);
-                }
-            });
-            return () => {}; // Return empty unsubscribe function
-        }
-        
         const q = query(
             collection(db, 'safetyAlerts'), 
             where('clubId', '==', clubId),
@@ -406,11 +324,6 @@ export const dbFunctions = {
 export const utils = {
     // Get current user's club ID
     getCurrentUserClubId: async () => {
-        if (DEMO_MODE) {
-            // Demo mode - return demo club ID
-            return 'demo-club-1';
-        }
-        
         const user = auth.currentUser;
         if (!user) return null;
         
@@ -420,25 +333,6 @@ export const utils = {
 
     // Check if user has role
     hasRole: async (requiredRole) => {
-        if (DEMO_MODE) {
-            // Demo mode - check demo user role
-            const demoUser = localStorage.getItem('demoUser');
-            if (!demoUser) return false;
-            
-            const user = JSON.parse(demoUser);
-            const userRole = user.role;
-            
-            // Define role hierarchy
-            const roleHierarchy = {
-                'admin': ['admin', 'coordinator', 'mentor', 'referee'],
-                'coordinator': ['coordinator', 'mentor', 'referee'],
-                'mentor': ['mentor', 'referee'],
-                'referee': ['referee']
-            };
-            
-            return roleHierarchy[userRole]?.includes(requiredRole) || false;
-        }
-        
         const user = auth.currentUser;
         if (!user) return false;
         
