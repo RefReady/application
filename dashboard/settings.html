@@ -253,36 +253,11 @@ Australia</textarea>
                                                 <button class="btn btn-sm btn-danger" onclick="deactivateUser('sarah')">Deactivate</button>
                                             </td>
                                         </tr>
-                                        <tr class="user-row">
-                                            <td class="user-info">
-                                                <div class="user-avatar">👨</div>
-                                                <div class="user-details">
-                                                    <span class="user-name">Mike Roberts</span>
-                                                    <span class="user-email">mike@riversidenetball.com</span>
-                                                </div>
-                                            </td>
-                                            <td><span class="role-badge mentor">Mentor Coordinator</span></td>
-                                            <td><span class="status-badge active">Active</span></td>
-                                            <td>1 day ago</td>
-                                            <td class="actions">
-                                                <button class="btn btn-sm btn-outline" onclick="editUser('mike')">Edit</button>
-                                                <button class="btn btn-sm btn-danger" onclick="deactivateUser('mike')">Deactivate</button>
-                                            </td>
-                                        </tr>
-                                        <tr class="user-row">
-                                            <td class="user-info">
-                                                <div class="user-avatar">👩</div>
-                                                <div class="user-details">
-                                                    <span class="user-name">Jennifer Adams</span>
-                                                    <span class="user-email">jennifer@riversidenetball.com</span>
-                                                </div>
-                                            </td>
-                                            <td><span class="role-badge coordinator">Safety Coordinator</span></td>
-                                            <td><span class="status-badge active">Active</span></td>
-                                            <td>3 days ago</td>
-                                            <td class="actions">
-                                                <button class="btn btn-sm btn-outline" onclick="editUser('jennifer')">Edit</button>
-                                                <button class="btn btn-sm btn-danger" onclick="deactivateUser('jennifer')">Deactivate</button>
+                                        <tr id="no-users-message">
+                                            <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                                                <div style="font-size: 2em; margin-bottom: 10px;">👥</div>
+                                                <h3>No Additional Users</h3>
+                                                <p>Only the club administrator account is active. Add team members to help manage your club.</p>
                                             </td>
                                         </tr>
                                     </tbody>
