@@ -153,34 +153,11 @@
             loginBtn.disabled = true;
 
             try {
-                // Try to sign in with Firebase
-                const result = await authFunctions.signIn(email, password);
-                
-                if (result.success) {
-                    // Get user data from Firestore
-                    const userDoc = await dbFunctions.getUser(result.user.uid);
-                    
-                    if (userDoc.success) {
-                        // Remember user if checkbox is checked
-                        if (remember) {
-                            localStorage.setItem('refready_remember', email);
-                        } else {
-                            localStorage.removeItem('refready_remember');
-                        }
-
-                        showNotification('Login successful! Redirecting...', 'success');
-                        // Auth state change will handle redirect
-                    } else {
-                        showNotification('User profile not found. Please contact support.', 'error');
-                        await authFunctions.signOut();
-                    }
+                // Use local auth system
+                if (window.refReadyAuth) {
+                    await window.refReadyAuth.login(email, password, remember);
                 } else {
-                    // If login fails and it's a demo credential, try to create account
-                    if (demoCredentials[email] && demoCredentials[email].password === password) {
-                        await createDemoAccount(email, password);
-                    } else {
-                        showNotification(result.error || 'Login failed', 'error');
-                    }
+                    showNotification('Authentication system not loaded', 'error');
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -257,11 +234,16 @@
         
         // Handle demo login
         document.getElementById('demo-login').addEventListener('click', () => {
-            // Fill in demo admin credentials
-            document.getElementById('club-email').value = 'admin@refready.com';
-            document.getElementById('club-password').value = 'admin123';
-            // Submit the form
-            document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            // Use the local demo authentication system
+            if (window.refReadyAuth) {
+                window.refReadyAuth.loginDemo();
+            } else {
+                // Fallback: Fill in demo admin credentials
+                document.getElementById('club-email').value = 'admin@adelaidenetball.com';
+                document.getElementById('club-password').value = 'demo123';
+                // Submit the form
+                document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            }
         });
         
         // Handle forgot password
@@ -371,6 +353,11 @@
         window.togglePassword = togglePassword;
         window.closeModal = closeModal;
         window.showNotification = showNotification;
+    </script>
+    <script src="auth.js"></script>
+    <script>
+        // Initialize local auth system after auth.js is loaded
+        window.refReadyAuth = new RefReadyAuth();
     </script>
 </body>
 </html> 
