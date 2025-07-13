@@ -485,7 +485,10 @@
                 
                 // Send invitation based on method
                 if (inviteData.method === 'email') {
-                    await sendInvitationEmail(invitation, invitationLink);
+                    const emailResult = await sendInvitationEmail(invitation, invitationLink);
+                    if (!emailResult.success) {
+                        throw new Error(emailResult.error || 'Failed to send invitation email');
+                    }
                 }
                 
                 return {
@@ -559,26 +562,149 @@
             }
         }
 
-        // Send invitation email
+        // Enhanced email sending with Firebase Extension
         async function sendInvitationEmail(invitation, invitationLink) {
             try {
-                // For now, we'll simulate email sending
-                // In production, this would integrate with a real email service
-                console.log('Sending invitation email:', {
+                console.log('📧 Sending invitation email via Firebase Extension...');
+                
+                // Create email document for Firebase Extension to process
+                const emailDoc = {
                     to: invitation.refereeEmail,
-                    subject: `Invitation to join ${invitation.clubName} - RefReady`,
-                    invitationLink: invitationLink,
-                    clubCode: invitation.clubCode
-                });
+                    message: {
+                        subject: `You're invited to join ${invitation.clubName} - RefReady`,
+                        html: generateInvitationEmailHTML(invitation, invitationLink),
+                        text: generateInvitationEmailText(invitation, invitationLink)
+                    },
+                    // Track the invitation
+                    metadata: {
+                        invitationId: invitation.id,
+                        clubId: invitation.clubId,
+                        type: 'referee-invitation',
+                        createdAt: new Date().toISOString()
+                    }
+                };
                 
-                // Simulate email sending delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Add to mail collection - Firebase Extension will automatically send
+                await dbFunctions.addDoc(
+                    dbFunctions.collection(dbFunctions.db, 'mail'),
+                    emailDoc
+                );
                 
-                return { success: true };
+                console.log('✅ Email queued successfully via Firebase Extension');
+                return { 
+                    success: true, 
+                    method: 'firebase-extension',
+                    message: 'Email queued for delivery'
+                };
+                
             } catch (error) {
-                console.error('Send email error:', error);
-                throw error;
+                console.error('❌ Firebase email sending failed:', error);
+                throw new Error(`Email sending failed: ${error.message}`);
             }
+        }
+        
+        // Generate HTML email content
+        function generateInvitationEmailHTML(invitation, invitationLink) {
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>RefReady Club Invitation</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+                        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                        .header { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 30px; text-align: center; }
+                        .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+                        .content { padding: 30px; }
+                        .club-code { background-color: #f8f9fa; border: 2px dashed #4CAF50; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+                        .club-code-value { font-size: 24px; font-weight: bold; color: #4CAF50; letter-spacing: 2px; }
+                        .button { display: inline-block; background-color: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }
+                        .instructions { background-color: #f8f9fa; border-radius: 6px; padding: 20px; margin: 20px 0; }
+                        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">🏐 RefReady</div>
+                            <h1>You're Invited to Join ${invitation.clubName}!</h1>
+                        </div>
+                        
+                        <div class="content">
+                            <p>Hi <strong>${invitation.refereeName}</strong>,</p>
+                            
+                            <p>Great news! You've been invited to join <strong>${invitation.clubName}</strong> on RefReady, the platform that helps referees improve their skills and connect with mentors.</p>
+                            
+                            ${invitation.personalMessage ? `
+                                <div style="background-color: #e8f5e8; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0; font-style: italic;">
+                                    "${invitation.personalMessage}"
+                                </div>
+                            ` : ''}
+                            
+                            <div class="club-code">
+                                <p style="margin: 0 0 10px 0; font-weight: bold;">Your Club Code:</p>
+                                <div class="club-code-value">${invitation.clubCode}</div>
+                                <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Use this code in the RefReady mobile app</p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <a href="${invitationLink}" class="button">Join ${invitation.clubName} Now</a>
+                            </div>
+                            
+                            <div class="instructions">
+                                <h3>How to Join:</h3>
+                                <ol>
+                                    <li><strong>Download RefReady</strong> from the App Store or Google Play</li>
+                                    <li><strong>Click the join link above</strong> or scan the QR code (if viewing on mobile)</li>
+                                    <li><strong>Or manually enter</strong> your club code: <code>${invitation.clubCode}</code></li>
+                                </ol>
+                            </div>
+                            
+                            <p><strong>Your Experience Level:</strong> ${invitation.refereeLevel.charAt(0).toUpperCase() + invitation.refereeLevel.slice(1)}</p>
+                            
+                            <p style="color: #666; font-size: 14px;"><strong>Note:</strong> This invitation expires on ${new Date(invitation.expiresAt).toLocaleDateString()}. Join soon to start your referee development journey!</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Welcome to RefReady - Empowering Referees, Building Confidence</p>
+                            <p>Need help? Contact your club administrator or visit our support center.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+        
+        // Generate plain text email content
+        function generateInvitationEmailText(invitation, invitationLink) {
+            return `
+RefReady Club Invitation
+
+Hi ${invitation.refereeName},
+
+You've been invited to join ${invitation.clubName} on RefReady!
+
+${invitation.personalMessage ? `Personal message from your club:\n"${invitation.personalMessage}"\n` : ''}
+
+CLUB CODE: ${invitation.clubCode}
+
+Join now: ${invitationLink}
+
+How to Join:
+1. Download RefReady from the App Store or Google Play
+2. Click the join link above
+3. Or manually enter your club code: ${invitation.clubCode}
+
+Your Experience Level: ${invitation.refereeLevel.charAt(0).toUpperCase() + invitation.refereeLevel.slice(1)}
+
+This invitation expires on ${new Date(invitation.expiresAt).toLocaleDateString()}.
+
+Welcome to RefReady - Empowering Referees, Building Confidence
+
+Need help? Contact your club administrator.
+            `.trim();
         }
 
         // Show invitation success modal
