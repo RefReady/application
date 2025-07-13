@@ -330,23 +330,26 @@
         </div>
     </div>
 
-    <script src="auth.js"></script>
-    <script src="dashboard.js"></script>
-    <script>
-        // Initialize dashboard
-        const dashboard = new RefReadyDashboard();
+    <script type="module">
+        import { DashboardManager } from './dashboard.js';
         
-        // Check authentication
-        const auth = new RefReadyAuth();
-        if (!auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        } else {
-            dashboard.init(auth);
-        }
+        // Initialize dashboard with real Firebase data
+        const dashboardManager = new DashboardManager();
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await dashboardManager.init();
+                console.log('Dashboard loaded with real club data');
+            } catch (error) {
+                console.error('Dashboard initialization failed:', error);
+                window.location.href = 'login.html';
+            }
+        });
         
         // Global functions for onclick events
         function logout() {
-            auth.logout();
+            dashboardManager.logout();
         }
         
         function showInviteReferee() {
@@ -358,11 +361,11 @@
         }
         
         function showAssignMentor() {
-            dashboard.showNotification('Mentor assignment feature coming soon!', 'info');
+            dashboardManager.showNotification('Mentor assignment feature coming soon!', 'info');
         }
         
         function generateReport() {
-            dashboard.showNotification('Report generation feature coming soon!', 'info');
+            dashboardManager.showNotification('Report generation feature coming soon!', 'info');
         }
         
         function closeModal(modalId) {
@@ -382,12 +385,12 @@
         // Handle form submissions
         document.getElementById('invite-referee-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            dashboard.inviteReferee();
+            dashboardManager.showNotification('Invite referee feature coming soon!', 'info');
         });
         
         document.getElementById('invite-mentor-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            dashboard.inviteMentor();
+            dashboardManager.showNotification('Invite mentor feature coming soon!', 'info');
         });
     </script>
 </body>
